@@ -36,19 +36,20 @@ Usage of ./imgconv:
         file extention after convert (default "png")
 
 # single directory
-$ ./imgconv images
+$ ./imgconv testdata/images
 
 # multi directories
-$ ./imgconv images images2
+$ ./imgconv testdata/images testdata/images2
 
 # customize ext
-$ ./imgconv -f png -t gif images
+$ ./imgconv -f png -t gif testdata/images
 
 # dry run
-$ ./imgconv -n images
-images/sample1.jpg => images/sample1.png
-images2/img/sample3.jpg => images2/img/sample3.png
-images2/sample2.jpg => images2/sample2.png
+$ ./imgconv -n testdata/images testdata/images2
+testdata/images/sample1.jpg => testdata/images/sample1.png
+testdata/images2/img/sample3.jpg => testdata/images2/img/sample3.png
+testdata/images2/sample2.jpg => testdata/images2/sample2.png
+
 ```
 
 ## 感想
