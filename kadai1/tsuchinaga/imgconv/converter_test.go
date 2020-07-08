@@ -1,4 +1,4 @@
-package conv
+package imgconv
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package conv
+package imgconv
 
 import (
 	"fmt"
@@ -32,8 +32,8 @@ func IsDir(path string) (bool, error) {
 	return fi.IsDir(), nil
 }
 
-// ExecConvert - 変換の実行
-func ExecConvert(dir, src, dest string) {
+// Do - 変換の実行
+func Do(dir, src, dest string) {
 	c := converter{
 		dirList:      []string{dir},
 		srcFileType:  src,
