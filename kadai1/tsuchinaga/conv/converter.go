@@ -11,16 +11,11 @@ import (
 	"path/filepath"
 )
 
-var validFileTypes = []string{"jpeg", "png"}
+var validFileTypes = map[string]bool{"jpeg": true, "png": true}
 
 // IsValidFileType - 指定されたファイルタイプが利用可能かを返す
 func IsValidFileType(fileType string) bool {
-	for _, t := range validFileTypes {
-		if t == fileType {
-			return true
-		}
-	}
-	return false
+	return validFileTypes[fileType]
 }
 
 // IsDir - pathがディレクトリかどうか
