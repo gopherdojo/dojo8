@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/gopherdojo/dojo8/kadai1/tsuchinaga/imgconv"
 )
@@ -16,19 +17,24 @@ func main() {
 
 	// validation
 	if dir == "" {
-		log.Fatalln("dirの指定は必須です")
+		log.Println("dirの指定は必須です")
+		os.Exit(2)
 	}
 	if isDir, err := imgconv.IsDir(dir); err != nil || !isDir {
-		log.Fatalf("%sは存在しないかディレクトリではありません\n", dir)
+		log.Printf("%sは存在しないかディレクトリではありません\n", dir)
+		os.Exit(2)
 	}
 	if !imgconv.IsValidFileType(src) {
-		log.Fatalf("%sは許可されていない画像形式です\n", src)
+		log.Printf("%sは許可されていない画像形式です\n", src)
+		os.Exit(2)
 	}
 	if !imgconv.IsValidFileType(dest) {
-		log.Fatalf("%sは許可されていない画像形式です", dest)
+		log.Printf("%sは許可されていない画像形式です", dest)
+		os.Exit(2)
 	}
 	if src == dest {
-		log.Fatalln("srcとdestで違う画像形式を選択してください")
+		log.Println("srcとdestで違う画像形式を選択してください")
+		os.Exit(2)
 	}
 
 	// 変換実行
