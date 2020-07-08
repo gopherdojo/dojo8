@@ -10,9 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/image/tiff"
-
 	"golang.org/x/image/bmp"
+	"golang.org/x/image/tiff"
 )
 
 type Args struct {
@@ -21,7 +20,7 @@ type Args struct {
 	AfterExtension  string
 }
 
-func convertImage(source, dest string) error {
+func convertImage(source, dest string) (err error) {
 	sourceFile, err := os.Open(source)
 	if err != nil {
 		return fmt.Errorf("file could not be opened. target: %s", source)
@@ -32,7 +31,12 @@ func convertImage(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("image file could not be created. target: %s", dest)
 	}
-	defer destFile.Close()
+
+	defer func(returnErr error) {
+		if returnErr == nil {
+			err = destFile.Close()
+		}
+	}(err)
 
 	img, _, err := image.Decode(sourceFile)
 	if err != nil {
@@ -41,20 +45,20 @@ func convertImage(source, dest string) error {
 
 	switch strings.ToLower(filepath.Ext(dest)) {
 	case ".png":
-		return png.Encode(destFile, img)
+		err = png.Encode(destFile, img)
 	case ".jpg", ".jpeg":
-		return jpeg.Encode(destFile, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
+		err = jpeg.Encode(destFile, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
 	case ".gif":
-		return gif.Encode(destFile, img, &gif.Options{256, nil, nil})
+		err = gif.Encode(destFile, img, &gif.Options{256, nil, nil})
 	case ".bmp":
-		return bmp.Encode(destFile, img)
+		err = bmp.Encode(destFile, img)
 	case ".tiff":
-		return tiff.Encode(destFile, img, nil)
+		err = tiff.Encode(destFile, img, nil)
 	default:
-		return fmt.Errorf("image file could not be created due to an unknown extension. target: %s", dest)
+		err = fmt.Errorf("image file could not be created due to an unknown extension. target: %s", dest)
 	}
 
-	return nil
+	return err
 }
 
 // 指定したディレクトリ以下のJPGファイルをPNGに変換（デフォルト）
@@ -63,8 +67,7 @@ func convertImage(source, dest string) error {
 func Convert(args Args) error {
 	return filepath.Walk(args.Directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
-			return err
+			return fmt.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))

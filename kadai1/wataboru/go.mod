@@ -1,4 +1,4 @@
-module dojo8/kadai1/wataboru
+module github.com/gopherdojo/dojo8/kadai1/wataboru
 
 go 1.14
 

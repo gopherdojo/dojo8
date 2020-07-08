@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dojo8/kadai1/wataboru/imageconverter"
+	"github.com/gopherdojo/dojo8/kadai1/wataboru/imageconverter"
 
 	"flag"
 	"fmt"
@@ -10,11 +10,11 @@ import (
 
 const (
 	// ExitCodeSuccess is the exit code on success
-	ExitCodeSuccess int = iota
+	ExitCodeSuccess = 0
 	// ExitCodeError is the exit code when failed
-	ExitCodeError
+	ExitCodeError = 1
 	// ExitCodeError is the exit code when failed
-	ExitCodeInvalidDirectoryError
+	ExitCodeInvalidDirectoryError = 2
 )
 
 var (

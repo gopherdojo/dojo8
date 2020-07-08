@@ -19,7 +19,7 @@
 ### 動作手順
 
 ```
-$ go build -o imageconverter
+$ go build -o imgconv
 $ ./imgconv -h 
 Usage of ./imgconv:
   -a string
@@ -37,11 +37,11 @@ Usage of ./imgconv:
   -dir --dir=./convert_image
     	Input target Directory.
     	  ex) --dir=./convert_image
-$ ./imgconv -d ./image 
+$ ./imgconv -d ./testdate
   or
-$ ./imgconv -d ./image -b png -a gif
+$ ./imgconv -d ./testdate -b png -a gif
   or
-$ ./imgconv -d ./image -b jpeg -a tiff
+$ ./imgconv -d ./testdate -b jpeg -a tiff
 ```
 
 ###　感想等
