@@ -17,7 +17,7 @@ func main() {
 	if dir == "" {
 		log.Fatalln("dirの指定は必須です")
 	}
-	if !conv.IsDir(dir) {
+	if isDir, err := conv.IsDir(dir); err != nil || !isDir {
 		log.Fatalf("%sは存在しないかディレクトリではありません\n", dir)
 	}
 	if !conv.IsValidFileType(src) {

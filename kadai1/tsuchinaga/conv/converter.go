@@ -2,6 +2,7 @@ package conv
 
 import (
 	"fmt"
+	"golang.org/x/xerrors"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -9,6 +10,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+)
+
+var (
+	FileStatError = xerrors.New("file stat error")
 )
 
 var validFileTypes = map[string]bool{"jpeg": true, "png": true}
@@ -19,9 +24,12 @@ func IsValidFileType(fileType string) bool {
 }
 
 // IsDir - pathがディレクトリかどうか
-func IsDir(path string) bool {
-	_, err := ioutil.ReadDir(path)
-	return err == nil
+func IsDir(path string) (bool, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false, xerrors.Errorf("%+v: %w", err, FileStatError)
+	}
+	return fi.IsDir(), nil
 }
 
 // ExecConvert - 変換の実行
