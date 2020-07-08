@@ -2,7 +2,6 @@ package imgconv
 
 import (
 	"fmt"
-	"golang.org/x/xerrors"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -10,6 +9,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/xerrors"
 )
 
 var (

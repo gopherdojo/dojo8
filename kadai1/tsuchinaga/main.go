@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/gopherdojo/dojo8/kadai1/tsuchinaga/imgconv"
 	"log"
+
+	"github.com/gopherdojo/dojo8/kadai1/tsuchinaga/imgconv"
 )
 
 func main() {
