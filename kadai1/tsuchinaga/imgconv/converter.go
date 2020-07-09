@@ -81,7 +81,7 @@ func (c *converter) exec() error {
 }
 
 // convert - 変換処理
-func (c converter) convert(path string) error {
+func (c converter) convert(path string) (err error) {
 	f, err := os.Open(path)
 	if err != nil { // 開けない
 		return xerrors.Errorf("%+v: %w", err, OpenSourceFileError)
@@ -99,7 +99,9 @@ func (c converter) convert(path string) error {
 		if err != nil {
 			return xerrors.Errorf("%+v: %w", err, CreateDestinationFileError)
 		}
-		defer o.Close()
+		defer func() {
+			err = o.Close()
+		}()
 
 		err = nil
 		switch c.destFileType {
