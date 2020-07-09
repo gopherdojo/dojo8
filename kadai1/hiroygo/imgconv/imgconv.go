@@ -96,12 +96,12 @@ func LoadImage(path string) (image.Image, error) {
 	}
 	defer f.Close()
 
-	img, _, err := image.Decode(f)
+	m, _, err := image.Decode(f)
 	if err != nil {
 		return nil, fmt.Errorf("Decode error, %w", err)
 	}
 
-	return img, nil
+	return m, nil
 }
 
 // SaveImage Image を指定された画像形式で保存する
