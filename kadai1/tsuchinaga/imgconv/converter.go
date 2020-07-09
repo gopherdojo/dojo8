@@ -15,10 +15,11 @@ import (
 var (
 	ReadDirError               = xerrors.New("read dir error")
 	FileStatError              = xerrors.New("file stat error")
-	OpenSourceFileError        = xerrors.New("open source file error")
+	OpenFileError              = xerrors.New("open source file error")
 	CreateDestinationFileError = xerrors.New("create destination file error")
 	ReadImageError             = xerrors.New("read image error")
 	EncodeImageError           = xerrors.New("encode image error")
+	NoImageError               = xerrors.New("no image error")
 )
 
 var validFileTypes = map[string]bool{"jpeg": true, "png": true}
@@ -83,11 +84,15 @@ func (c *converter) exec() error {
 func (c converter) convert(path string) (err error) {
 	f, err := os.Open(path)
 	if err != nil { // 開けない
-		return xerrors.Errorf("%+v: %w", err, OpenSourceFileError)
+		return xerrors.Errorf("%+v: %w", err, OpenFileError)
 	}
 	defer f.Close()
 
-	if getFileType(path) == c.srcFileType {
+	ft, err := getFileType(path)
+	if err != nil {
+		return err
+	}
+	if ft == c.srcFileType {
 		img, _, err := image.Decode(f)
 		if err != nil {
 			return xerrors.Errorf("%+v: %w", err, ReadImageError)
@@ -117,16 +122,16 @@ func (c converter) convert(path string) (err error) {
 }
 
 // getFileType - 画像ファイルの型を得る
-func getFileType(path string) string {
+func getFileType(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil { // 開けない
-		return ""
+		return "", OpenFileError
 	}
 	defer f.Close()
 
 	_, format, err := image.DecodeConfig(f)
 	if err != nil { // 画像じゃない
-		return ""
+		return "", NoImageError
 	}
-	return format
+	return format, nil
 }
