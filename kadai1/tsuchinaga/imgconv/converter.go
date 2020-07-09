@@ -14,7 +14,12 @@ import (
 )
 
 var (
-	FileStatError = xerrors.New("file stat error")
+	ReadDirError               = xerrors.New("read dir error")
+	FileStatError              = xerrors.New("file stat error")
+	OpenSourceFileError        = xerrors.New("open source file error")
+	CreateDestinationFileError = xerrors.New("create destination file error")
+	ReadImageError             = xerrors.New("read image error")
+	EncodeImageError           = xerrors.New("encode image error")
 )
 
 var validFileTypes = map[string]bool{"jpeg": true, "png": true}
@@ -34,13 +39,13 @@ func IsDir(path string) (bool, error) {
 }
 
 // Do - 変換の実行
-func Do(dir, src, dest string) {
+func Do(dir, src, dest string) error {
 	c := converter{
 		dirList:      []string{dir},
 		srcFileType:  src,
 		destFileType: dest,
 	}
-	c.exec()
+	return c.exec()
 }
 
 // converter - 変換機能の実装
@@ -51,15 +56,14 @@ type converter struct {
 }
 
 // exec - ディレクトリをたどりながら変換を実行
-func (c *converter) exec() {
+func (c *converter) exec() error {
 	for len(c.dirList) > 0 {
 		dirPath := c.dirList[0]
 		c.dirList = c.dirList[1:]
 
 		files, err := ioutil.ReadDir(dirPath)
 		if err != nil {
-			log.Printf("ディレクトリ: %sが読み込めなかったためスキップします\n", dirPath)
-			continue
+			return xerrors.Errorf("%+v: %w", err, ReadDirError)
 		}
 
 		for _, file := range files {
@@ -67,33 +71,33 @@ func (c *converter) exec() {
 			if file.IsDir() {
 				c.dirList = append(c.dirList, path)
 			} else {
-				c.convert(path)
+				if err := c.convert(path); err != nil {
+					return err
+				}
 			}
 		}
 	}
+	return nil
 }
 
 // convert - 変換処理
-func (c converter) convert(path string) {
+func (c converter) convert(path string) error {
 	f, err := os.Open(path)
 	if err != nil { // 開けない
-		log.Printf("ファイル: %sが開けなかったためスキップします\n", path)
-		return
+		return xerrors.Errorf("%+v: %w", err, OpenSourceFileError)
 	}
 	defer f.Close()
 
 	if getFileType(path) == c.srcFileType {
 		img, _, err := image.Decode(f)
 		if err != nil {
-			log.Printf("ファイル: %sが読み込めなかったためスキップします\n", path)
-			return
+			return xerrors.Errorf("%+v: %w", err, ReadImageError)
 		}
 
 		newFilePath := fmt.Sprintf("%s.%s", path, c.destFileType)
 		o, err := os.Create(newFilePath)
 		if err != nil {
-			log.Printf("変換後ファイル: %sが作成できなかったためスキップします\n", newFilePath)
-			return
+			return xerrors.Errorf("%+v: %w", err, CreateDestinationFileError)
 		}
 		defer o.Close()
 
@@ -101,16 +105,15 @@ func (c converter) convert(path string) {
 		switch c.destFileType {
 		case "jpeg":
 			err = jpeg.Encode(o, img, nil)
-
 		case "png":
 			err = png.Encode(o, img)
 		}
 		if err != nil {
 			log.Printf("ファイル: %sの変換に失敗しました\n", path)
-		} else {
-			log.Printf("%s => %s\n", path, newFilePath)
+			return xerrors.Errorf("%+v: %w", err, EncodeImageError)
 		}
 	}
+	return nil
 }
 
 // getFileType - 画像ファイルの型を得る

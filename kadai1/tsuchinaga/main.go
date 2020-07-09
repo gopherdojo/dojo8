@@ -38,5 +38,8 @@ func main() {
 	}
 
 	// 変換実行
-	imgconv.Do(dir, src, dest)
+	if err := imgconv.Do(dir, src, dest); err != nil {
+		log.Println(err)
+		os.Exit(2)
+	}
 }
