@@ -6,7 +6,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -103,16 +102,15 @@ func (c converter) convert(path string) (err error) {
 			err = o.Close()
 		}()
 
-		err = nil
 		switch c.destFileType {
 		case "jpeg":
-			err = jpeg.Encode(o, img, nil)
+			if err = jpeg.Encode(o, img, nil); err != nil {
+				return xerrors.Errorf("%+v: %w", err, EncodeImageError)
+			}
 		case "png":
-			err = png.Encode(o, img)
-		}
-		if err != nil {
-			log.Printf("ファイル: %sの変換に失敗しました\n", path)
-			return xerrors.Errorf("%+v: %w", err, EncodeImageError)
+			if err = png.Encode(o, img); err != nil {
+				return xerrors.Errorf("%+v: %w", err, EncodeImageError)
+			}
 		}
 	}
 	return nil
