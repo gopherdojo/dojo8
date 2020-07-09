@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gopherdojo/dojo8/kadai1/hiroygo/imgconv"
 )
 
 func getSaveFilePath(srcFilePath string, t imgconv.ImageType) string {
-	saveFileName := filepath.Base(srcFilePath)
-	saveFileName = strings.TrimSuffix(saveFileName, filepath.Ext(saveFileName))
+	saveFileName := filepath.Base(srcFilePath[:len(srcFilePath)-len(filepath.Ext(srcFilePath))])
 	saveFileName += "." + t.String()
 	return filepath.Join(filepath.Dir(srcFilePath), saveFileName)
 }
