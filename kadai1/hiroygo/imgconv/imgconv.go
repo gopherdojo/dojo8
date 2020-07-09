@@ -105,16 +105,22 @@ func LoadImage(path string) (image.Image, error) {
 }
 
 // SaveImage Image を指定された画像形式で保存する
-func SaveImage(m image.Image, out ImageType, savePath string) error {
+func SaveImage(m image.Image, out ImageType, savePath string) (rerr error) {
 	if m == nil {
-		return fmt.Errorf("Image が nil です")
+		rerr = fmt.Errorf("Image が nil です")
+		return
 	}
 
 	f, err := os.Create(savePath)
 	if err != nil {
-		return fmt.Errorf("Create error, %w", err)
+		rerr = fmt.Errorf("Create error, %w", err)
+		return
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			rerr = fmt.Errorf("Close error, %w", err)
+		}
+	}()
 
 	switch out {
 	case Jpeg:
@@ -131,8 +137,8 @@ func SaveImage(m image.Image, out ImageType, savePath string) error {
 		err = fmt.Errorf("画像種別 %s は不明です", out.String())
 	}
 	if err != nil {
-		return fmt.Errorf("Encode error, %w", err)
+		rerr = fmt.Errorf("Encode error, %w", err)
 	}
 
-	return nil
+	return
 }
