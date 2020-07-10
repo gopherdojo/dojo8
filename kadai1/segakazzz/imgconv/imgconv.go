@@ -66,14 +66,14 @@ func newConverter(dirname string, input string, output string) (*converter, erro
 }
 
 // Convert method converts all jpg files in dirname to png. "out" folder is generated if it doesn't exist.
-func (c *converter) Convert() (e error) {
+func (c *converter) Convert() error {
 	files, e := c.getSourceFiles()
 	if e != nil {
-		return
+		return e
 	}
 	e = c.convertFiles(files)
 	if e != nil {
-		return
+		return e
 	}
 	return nil
 }
@@ -81,21 +81,21 @@ func (c *converter) Convert() (e error) {
 func (c *converter) getSourceFiles() ([]os.FileInfo, error) {
 	files, err := ioutil.ReadDir(c.dirname)
 	if err != nil {
-		return []os.FileInfo{}, err
+		return nil, err
 	}
 	return files, nil
 }
 
-func (c *converter) convertFiles(files []os.FileInfo) (e error) {
+func (c *converter) convertFiles(files []os.FileInfo) error {
 	re, e := regexp.Compile("." + c.input + "$")
 	if e != nil {
-		return
+		return e
 	}
 	for _, file := range files {
 		if re.MatchString(file.Name()) {
 			e = c.convertSingle(file.Name())
 			if e != nil {
-				return
+				return e
 			}
 		}
 	}
