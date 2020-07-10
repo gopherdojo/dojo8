@@ -102,7 +102,7 @@ func (c *converter) convertFiles(files []os.FileInfo) error {
 	return nil
 }
 
-func (c *converter) convertSingle(filename string) error {
+func (c *converter) convertSingle(filename string) (e error) {
 	input := filepath.Join(c.dirname, filename)
 	outDir := filepath.Join(c.dirname, "out")
 	output := filepath.Join(outDir, strings.Replace(strings.ToLower(filename), "."+c.input, "."+c.output, -1))
@@ -115,20 +115,24 @@ func (c *converter) convertSingle(filename string) error {
 	if e != nil {
 		return e
 	}
+
+	defer func() {
+		e = in.Close()
+	}()
+
 	var out *os.File
 	if c.fileExists(output) {
 		out, e = os.OpenFile(output, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-		if e != nil {
-			return e
-		}
 	} else {
 		out, e = os.Create(output)
-		if e != nil {
-			return e
-		}
 	}
-	defer in.Close()
-	defer out.Close()
+	if e != nil {
+		return e
+	}
+
+	defer func() {
+		e = out.Close()
+	}()
 
 	var (
 		img image.Image
