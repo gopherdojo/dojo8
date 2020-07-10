@@ -102,7 +102,7 @@ func (c *converter) convertFiles(files []os.FileInfo) error {
 	return nil
 }
 
-func (c *converter) convertSingle(filename string) (e error) {
+func (c *converter) convertSingle(filename string) error {
 	input := filepath.Join(c.dirname, filename)
 	outDir := filepath.Join(c.dirname, "out")
 	output := filepath.Join(outDir, strings.Replace(strings.ToLower(filename), "."+c.input, "."+c.output, -1))
@@ -111,17 +111,20 @@ func (c *converter) convertSingle(filename string) (e error) {
 		os.Mkdir(outDir, 0755)
 	}
 
-	in, _ := os.Open(input)
+	in, e := os.Open(input)
+	if e != nil {
+		return e
+	}
 	var out *os.File
 	if c.fileExists(output) {
 		out, e = os.OpenFile(output, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if e != nil {
-			return
+			return e
 		}
 	} else {
 		out, e = os.Create(output)
 		if e != nil {
-			return
+			return e
 		}
 	}
 	defer in.Close()
@@ -138,7 +141,7 @@ func (c *converter) convertSingle(filename string) (e error) {
 	}
 
 	if e != nil {
-		return
+		return e
 	}
 	switch c.output {
 	case "png":
@@ -147,7 +150,7 @@ func (c *converter) convertSingle(filename string) (e error) {
 		e = jpeg.Encode(out, img, nil)
 	}
 	if e != nil {
-		return
+		return e
 	}
 	return nil
 }
