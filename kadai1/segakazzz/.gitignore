@@ -1,7 +1,7 @@
 .idea
-image/in/*
-image/out/*
-image/*.jpg
-image/*.png
+testdata/in/*
+testdata/out/*
+testdata/*.jpg
+testdata/*.png
 kadai1-segakazzz
 
