@@ -1,0 +1,7 @@
+.idea
+testdata/in/*
+testdata/out/*
+testdata/*.jpg
+testdata/*.png
+kadai1-segakazzz
+
