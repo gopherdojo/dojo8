@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -38,8 +39,10 @@ func main() {
 	}
 
 	// 変換実行
-	if err := imgconv.Do(dir, src, dest); err != nil {
-		log.Println(err)
-		os.Exit(2)
+	ch := imgconv.Do(dir, src, dest)
+	for err := range ch {
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

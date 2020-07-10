@@ -39,13 +39,21 @@ func IsDir(path string) (bool, error) {
 }
 
 // Do - 変換の実行
-func Do(dir, src, dest string) error {
+func Do(dir, src, dest string) chan error {
 	c := converter{
 		dirList:      []string{dir},
 		srcFileType:  src,
 		destFileType: dest,
+		ch:           make(chan error),
 	}
-	return c.exec()
+	go func() {
+		defer close(c.ch)
+		err := c.exec()
+		if err != nil {
+			c.ch <- err
+		}
+	}()
+	return c.ch
 }
 
 // converter - 変換機能の実装
@@ -53,6 +61,7 @@ type converter struct {
 	dirList      []string
 	srcFileType  string
 	destFileType string
+	ch           chan error
 }
 
 // exec - ディレクトリをたどりながら変換を実行
@@ -72,7 +81,7 @@ func (c *converter) exec() error {
 				c.dirList = append(c.dirList, path)
 			} else {
 				if err := c.convert(path); err != nil {
-					return err
+					c.ch <- err // エラーをチャネルに渡して続きを進める
 				}
 			}
 		}
