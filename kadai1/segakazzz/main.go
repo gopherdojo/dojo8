@@ -1,7 +1,15 @@
 package main
 
-import "github.com/gopherdojo/dojo8/kadai1/segakazzz/imgconv"
+import (
+	"os"
+
+	"github.com/gopherdojo/dojo8/kadai1/segakazzz/imgconv"
+)
 
 func main() {
-	imgconv.RunConverter()
+	err := imgconv.RunConverter()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Exit(0)
 }
