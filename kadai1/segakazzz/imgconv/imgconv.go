@@ -50,17 +50,17 @@ func newConverter(dirname string, input string, output string) (*converter, erro
 	case "jpg", "png":
 		input = strings.ToLower(input)
 	default:
-		return &converter{}, fmt.Errorf("Input extension is not valid. Select one from jpg/png")
+		return nil, fmt.Errorf("Input extension is not valid. Select one from jpg/png")
 	}
 	switch output {
 	case "jpg", "png":
 		output = strings.ToLower(output)
 	default:
-		return &converter{}, fmt.Errorf("Output extension is not valid. Select one from jpg/png")
+		return nil, fmt.Errorf("Output extension is not valid. Select one from jpg/png")
 	}
 
 	if input == output {
-		return &converter{}, fmt.Errorf("Input and Output extensiton is the same. No convertion is needed")
+		return nil, fmt.Errorf("Input and Output extensiton is the same. No convertion is needed")
 	}
 	return &converter{dirname: dirname, input: input, output: output}, nil
 }
