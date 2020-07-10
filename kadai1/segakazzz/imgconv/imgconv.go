@@ -29,7 +29,6 @@ func RunConverter() {
 		dir = flag.String("d", ".", "Indicate directory to convert")
 		in  = flag.String("i", "jpg", "Indicate input image file's extension")
 		out = flag.String("o", "png", "Indicate output image file's extension")
-		err error
 	)
 
 	flag.Parse()
