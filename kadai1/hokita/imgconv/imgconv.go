@@ -2,21 +2,12 @@ package imgconv
 
 import (
 	"errors"
-	"flag"
 	"os"
 	"path/filepath"
 )
 
-func Call() error {
-	var (
-		from = flag.String("from", "jpg", "Conversion source extension.")
-		to   = flag.String("to", "png", "Conversion target extension.")
-	)
-	// TODO: mainパッケージへ移す
-	flag.Parse()
-	dir := flag.Arg(0)
-
-	if flag.Arg(0) == "" {
+func Call(dir, from, to string) error {
+	if dir == "" {
 		return errors.New("Please specify a directory.")
 	}
 
@@ -24,7 +15,7 @@ func Call() error {
 		return errors.New("Cannot find directory.")
 	}
 
-	converter, err := newConverter(*from, *to)
+	converter, err := newConverter(from, to)
 	if err != nil {
 		return err
 	}
