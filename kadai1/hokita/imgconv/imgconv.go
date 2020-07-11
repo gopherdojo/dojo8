@@ -12,6 +12,7 @@ func Call() error {
 		from = flag.String("from", "jpg", "Conversion source extension.")
 		to   = flag.String("to", "png", "Conversion target extension.")
 	)
+	// TODO: mainパッケージへ移す
 	flag.Parse()
 	dir := flag.Arg(0)
 
@@ -23,7 +24,7 @@ func Call() error {
 		return errors.New("Cannot find directory.")
 	}
 
-	converter, err := converterFactory(*from, *to)
+	converter, err := newConverter(*from, *to)
 	if err != nil {
 		return err
 	}

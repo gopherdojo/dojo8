@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func converterFactory(from string, to string) (*Converter, error) {
+func newConverter(from, to string) (*Converter, error) {
 	fromImage, err := selectImage("." + from)
 	if err != nil {
 		return nil, err
@@ -25,9 +25,10 @@ type Converter struct {
 	toImage   ImageType
 }
 
-func (conv *Converter) Execute(path string) error {
+func (conv *Converter) Execute(path string) (rerr error) {
 	// ignore unrelated file
 	if !conv.fromImage.IsMatchExt(filepath.Ext(path)) {
+		// TODO: os.IsNotExit対応する
 		return nil
 	}
 
@@ -46,19 +47,25 @@ func (conv *Converter) Execute(path string) error {
 
 	// output file
 	out, err := os.Create(conv.SwitchExt(path))
-	defer out.Close()
+	defer func() {
+		if err := out.Close(); err != nil {
+			rerr = err
+		}
+	}()
 	if err != nil {
 		return err
 	}
 
 	// output image
-	conv.toImage.Encode(out, img)
+	if err := conv.toImage.Encode(out, img); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (conv *Converter) SwitchExt(path string) string {
 	ext := filepath.Ext(path)
-	toExt := conv.toImage.Extensions()[0]
+	toExt := conv.toImage.GetMainExt()
 
 	return path[:len(path)-len(ext)] + toExt
 }

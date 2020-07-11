@@ -10,20 +10,22 @@ const QUALITY = 100
 
 type JpegImage struct{}
 
-func (_ JpegImage) Encode(w io.Writer, m image.Image) error {
+var jpegExt = map[string]bool{
+	".jpg":  true,
+	".jpeg": true,
+	".JPG":  true,
+	".JPEG": true,
+}
+
+func (JpegImage) Encode(w io.Writer, m image.Image) error {
 	err := jpeg.Encode(w, m, &jpeg.Options{Quality: QUALITY})
 	return err
 }
 
 func (ji JpegImage) IsMatchExt(ext string) bool {
-	for _, myExt := range ji.Extensions() {
-		if ext == myExt {
-			return true
-		}
-	}
-	return false
+	return jpegExt[ext]
 }
 
-func (_ JpegImage) Extensions() []string {
-	return []string{".jpg", ".jpeg", ".JPG", ".JPEG"}
+func (JpegImage) GetMainExt() string {
+	return ".jpg"
 }

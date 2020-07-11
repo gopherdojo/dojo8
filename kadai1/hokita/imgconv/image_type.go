@@ -9,7 +9,7 @@ import (
 type ImageType interface {
 	Encode(w io.Writer, m image.Image) error
 	IsMatchExt(ext string) bool
-	Extensions() []string
+	GetMainExt() string
 }
 
 func selectImage(ext string) (ImageType, error) {
