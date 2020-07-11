@@ -1,6 +1,7 @@
 package imgconv
 
 import (
+	"errors"
 	"image"
 	"os"
 	"path/filepath"
@@ -20,6 +21,12 @@ func newConverter(from, to string) (*Converter, error) {
 	return &Converter{fromImage, toImage}, nil
 }
 
+var ErrUnmatchExt = errors.New("ext does not match")
+
+func IsNotMatchExt(err error) bool {
+	return errors.Is(err, ErrUnmatchExt)
+}
+
 type Converter struct {
 	fromImage ImageType
 	toImage   ImageType
@@ -28,8 +35,7 @@ type Converter struct {
 func (conv *Converter) Execute(path string) (rerr error) {
 	// ignore unrelated file
 	if !conv.fromImage.IsMatchExt(filepath.Ext(path)) {
-		// TODO: os.IsNotExit対応する
-		return nil
+		return ErrUnmatchExt
 	}
 
 	// file open

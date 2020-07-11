@@ -23,7 +23,10 @@ func Call(dir, from, to string) error {
 	err = filepath.Walk(dir,
 		func(path string, info os.FileInfo, err error) error {
 			err = converter.Execute(path)
-			return err
+			if !IsNotMatchExt(err) {
+				return err
+			}
+			return nil
 		})
 	if err != nil {
 		return err
