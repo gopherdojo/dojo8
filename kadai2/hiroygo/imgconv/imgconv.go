@@ -1,6 +1,7 @@
 package imgconv
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/gif"
@@ -113,7 +114,7 @@ func ReplaceExt(path string, replace ImageType) string {
 // SaveImage Image を指定された画像形式で保存する
 func SaveImage(m image.Image, out ImageType, savePath string) (rerr error) {
 	if m == nil {
-		return fmt.Errorf("Image が nil です")
+		return errors.New("Image が nil です")
 	}
 
 	var encoder func(*os.File, image.Image) error
