@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"testing"
 
 	"github.com/gopherdojo/dojo8/kadai1/wataboru/imageconverter"
 )
@@ -18,10 +19,14 @@ const (
 )
 
 var (
-	args imageconverter.Args
+	args         imageconverter.Args
+	osStat       func(name string) (os.FileInfo, error)
+	osIsNotExist func(err error) bool
+	imgconv      func(args imageconverter.Args) error
 )
 
 func init() {
+	testing.Init()
 	flag.StringVar(&args.Directory, "dir", "", "Input target Directory.\n  ex) `--dir=./convert_image`")
 	flag.StringVar(&args.Directory, "d", "", "Input target Directory. (short)")
 	flag.StringVar(&args.BeforeExtension, "before", "jpg", "Input extension before conversion.\n  ex) `--before=png`")
@@ -29,6 +34,15 @@ func init() {
 	flag.StringVar(&args.AfterExtension, "after", "png", "Input extension after conversion.\n  ex) `--after=jpg`")
 	flag.StringVar(&args.AfterExtension, "a", "png", "Input extension after conversion. (short)")
 	flag.Parse()
+
+	osStat = func(name string) (os.FileInfo, error) {
+		return os.Stat(name)
+	}
+	osIsNotExist = func(err error) bool {
+		return os.IsNotExist(err)
+	}
+	imgconv = imageconverter.Convert
+
 }
 
 func run() int {
@@ -37,12 +51,12 @@ func run() int {
 		return ExitCodeInvalidDirectoryError
 	}
 
-	if _, err := os.Stat(args.Directory); os.IsNotExist(err) {
+	if _, err := osStat(args.Directory); osIsNotExist(err) {
 		fmt.Fprintln(os.Stderr, "Target directory is not found.")
 		return ExitCodeInvalidDirectoryError
 	}
 
-	if err := imageconverter.Convert(args); err != nil {
+	if err := imgconv(args); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return ExitCodeError
 	}
