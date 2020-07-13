@@ -58,7 +58,7 @@ func TestCheckDir(t *testing.T) {
 		{"./testdata", false, ""},
 		{"", true, "No directory specified"},
 		{"./test", true, "stat ./test: no such file or directory"},
-		{"./README.md", true, "./README.md : not a directory"},
+		{"./README.md", true, "stat ./README.md: no such file or directory"},
 	}
 
 	for _, test := range tests {
