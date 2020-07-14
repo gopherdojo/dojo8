@@ -54,3 +54,47 @@ func NewScanner(r io.Reader) *Scanner {
 
 
 ### 1回目の課題のテストを作ってみて下さい
+
+リファクタリングの域をこえてるきもするけど、いつもやってるようにTODO出してテストを作っていく  
+課題1の時よりも責務を意識してTODOを分ける
+
+* [x] ディレクトリが指定でき、その配下のディレクトリとファイルを再帰的に探索し、変換前として指定されたフォーマットの画像ファイルを変換後として指定されたフォーマットの画像ファイルに変換する
+    * [x] コマンドのパラメータを指定する
+        * [x] ベースのディレクトリを指定する
+            * [x] 必須
+        * [x] 変換前のファイルフォーマットを指定する
+            * [x] 任意
+            * [x] デフォルトjpeg
+            * [x] 許容されるのはjpeg/png
+        * [x] 変換後のファイルフォーマットを指定する
+            * [x] 任意
+            * [x] デフォルトpng
+            * [x] 許容されるのはjpeg/png
+            * [x] 変換前と同じフォーマットの指定は不可
+    * [x] 指定されたディレクトリの配下のディレクトリとファイルの一覧を取得する
+        * [x] 配下にディレクトリがあればさらに読み込めるようにする
+        * [x] 指定されたパスがディレクトリでなければ中止
+            * [x] ディレクトリかを判断する
+    * [x] ファイルの画像フォーマットを取得する
+        * [x] ファイルが画像なら画像フォーマットを取得する
+        * [x] ファイルが画像でなければフォーマットは取得できないので中止
+    * [x] ファイルフォーマットを変換する
+
+
+#### カバレッジ
+```bash
+$ go tool cover -func=cover.out
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:27:            NewIMGConverter 100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:42:            Do              93.3%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:74:            NewConverter    100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:90:            IsDir           100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:99:            GetIMGType      90.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:118:           DirFileList     100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/imgconv/imgconv.go:137:           Convert         69.2%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/validation/validation.go:4:       NewValidator    100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/validation/validation.go:19:      IsValidDir      100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/validation/validation.go:26:      IsValidFileType 100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/validation/validation.go:31:      IsValidSrc      100.0%
+github.com/gopherdojo/dojo8/kadai2/tsuchinaga/validation/validation.go:36:      IsValidDest     100.0%
+total:                                                                          (statements)    86.1%
+```
