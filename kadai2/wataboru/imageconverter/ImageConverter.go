@@ -39,7 +39,6 @@ func init() {
 	}
 	imageDecode = image.Decode
 	newImgEncoder = newImageEncoder
-
 }
 
 type Args struct {

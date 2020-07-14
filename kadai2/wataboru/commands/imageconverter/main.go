@@ -35,12 +35,8 @@ func init() {
 	flag.StringVar(&args.AfterExtension, "a", "png", "Input extension after conversion. (short)")
 	flag.Parse()
 
-	osStat = func(name string) (os.FileInfo, error) {
-		return os.Stat(name)
-	}
-	osIsNotExist = func(err error) bool {
-		return os.IsNotExist(err)
-	}
+	osStat = os.Stat
+	osIsNotExist = os.IsNotExist
 	imgconv = imageconverter.Convert
 
 }
