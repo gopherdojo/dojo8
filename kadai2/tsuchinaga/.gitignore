@@ -1,0 +1,6 @@
+## for IntelliJ
+.idea
+*.iml
+
+testdata/**/*.converted.*
+cover.out
