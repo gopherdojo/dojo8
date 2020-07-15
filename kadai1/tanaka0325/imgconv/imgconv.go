@@ -3,7 +3,6 @@ package imgconv
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,14 +23,14 @@ func init() {
 }
 
 // Run is to convert image file format
-func Run() {
+func Run() error {
 	// check options ext
 	to := strings.ToLower(*t)
 	from := strings.ToLower(*f)
 	targetExts := []string{to, from}
 	for _, e := range targetExts {
 		if err := allowedExts.include(e); err != nil {
-			log.Fatal(fmt.Errorf("%w. ext is only allowd in %s", err, allowedExts))
+			return fmt.Errorf("%w. ext is only allowd in %s", err, allowedExts)
 		}
 	}
 
@@ -40,27 +39,29 @@ func Run() {
 	udns := uniq(dns)
 	paths, err := getPaths(udns, from)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// convert
 	imgs, err := createConvImages(paths, from, to)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, img := range imgs {
 		if err := img.decode(); err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		if *dryRun {
 			fmt.Println(img.filename+"."+img.fromExt, "=>", img.filename+"."+img.toExt)
 		} else {
 			if err := img.encode(); err != nil {
-				log.Fatal(err)
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
 func uniq(s []string) []string {
