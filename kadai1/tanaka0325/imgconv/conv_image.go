@@ -1,4 +1,4 @@
-package converter
+package imgconv
 
 import (
 	"fmt"

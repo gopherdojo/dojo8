@@ -1,4 +1,4 @@
-module github.com/gopherdojo/dojo8/kadai1/tanaka0325
+module github.com/gopherdojo/dojo8/kadai1/tanaka0325/imgconv
 
 go 1.14
 

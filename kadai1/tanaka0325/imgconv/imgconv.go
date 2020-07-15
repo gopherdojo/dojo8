@@ -1,4 +1,4 @@
-package converter
+package imgconv
 
 import (
 	"flag"
@@ -9,18 +9,23 @@ import (
 	"strings"
 )
 
-// flags
 var (
+	// flags
+	f      = flag.String("f", "jpg", "file extention before convert")
+	t      = flag.String("t", "png", "file extention after convert")
+	dryRun = flag.Bool("n", false, "dry run")
+
+	// allow extensions
 	allowedExts = exts{"png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif"}
-	f           = flag.String("f", "jpg", "file extention before convert")
-	t           = flag.String("t", "png", "file extention after convert")
-	dryRun      = flag.Bool("n", false, "dry run")
 )
 
-// Convert is to convert image file format
-func Convert() {
-	// check options ext
+func init() {
 	flag.Parse()
+}
+
+// Run is to convert image file format
+func Run() {
+	// check options ext
 	to := strings.ToLower(*t)
 	from := strings.ToLower(*f)
 	targetExts := []string{to, from}

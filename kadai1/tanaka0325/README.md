@@ -24,7 +24,7 @@
 
 ```zsh
 # build
-$ go build -o ./imgconv
+$ go build -o imgconv ./cmd/imgconv
 
 # display help
 $ ./imgconv -h
