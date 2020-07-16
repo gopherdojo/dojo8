@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"imgconv/imgconv"
 	"os"
+
+	"github.com/gopherdojo/dojo8/kadai2/hokita/imgconv/imgconv"
 )
 
 const (
