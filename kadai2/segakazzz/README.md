@@ -1,6 +1,6 @@
 # Try 1: io.Reader と io.Writer について調べてみよう
 
-## 標準パッケージでどのように使われているか
+## 標準パッケージでどのように使われているか（回答）
 
 ### io.Reader/io.Writer とは
 
@@ -38,7 +38,7 @@ type Writer interface {
 - os.Stdout
 - os.File
 
-## io.Reader と io.Writer があることでどういう利点があるのか具体例を挙げて考えてみる
+## io.Reader と io.Writer があることでどういう利点があるのか具体例を挙げて考えてみる（回答）
 
 ### 1. どこからデータを読み込み、どこへ書き出すかについて自由に実装ができる
 
@@ -171,6 +171,40 @@ func main() {
 - テーブル駆動テストを行う
 - テストヘルパーを作ってみる
 
+### 回答
+
+以下のコマンドでテストの実行が可能です。今回は 85.2%程カバーすることができました。
+
+```
+$ go test --cover ./imgconv --coverprofile cover.out
+ok      github.com/gopherdojo/dojo8/kadai2/segakazzz/imgconv    6.727s  coverage: 85.2% of statements
+```
+
+また、以下でコードのどこがテストされたか、ブラウザに表示をさせて確認をすることができます。
+
+```
+$ go tool cover -html=cover.out
+```
+
+### 感想
+
+- t.Helper()は、名前からもっとたくさんの情報を出力してくれるのかと期待してしまいましたが、呼び出し元の位置がわかるだけでした。
+- 小さな関数からテストを書いていくより、親となる関数からテストを書いて、カバーした内容を確認しながら、カバーしきれない分のテストを足していったほうが効率的だとおもいました。
+- err の状況を作り出す方法がわからずに、カバーしきれなかった部分もあるので、100%のカバレッジを目指すには、こういった点の調査も必要になると思いました。
+
+```golang
+switch c.output {
+        case "png":
+                e = png.Encode(out, img)
+        case "jpg":
+                e = jpeg.Encode(out, img, nil)
+        }
+        if e != nil {
+                return e
+        }
+}
+~~~
+
 ### 参考文献
 
 - カバレッジとは　https://www.techmatrix.co.jp/t/quality/coverage.html
@@ -178,5 +212,9 @@ func main() {
 - テストヘルパーとは　https://qiita.com/atotto/items/f6b8c773264a3183a53c
 
 ```
-testComputeにt.Helper()の１行を追加します。すると、testCompute内で発生したエラーは呼び元のTestComputeのどの行で失敗したのかを表示するようになります。
+
+testCompute に t.Helper()の１行を追加します。すると、testCompute 内で発生したエラーは呼び元の TestCompute のどの行で失敗したのかを表示するようになります。
+
+```
+
 ```

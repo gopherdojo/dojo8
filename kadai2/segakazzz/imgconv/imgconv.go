@@ -3,7 +3,6 @@ package imgconv
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -24,14 +23,7 @@ type converter struct {
 // RunConverter converts all image files in the directory which you indicate with -d option.
 // If the process is completed succeessfully, you will see the list of output files and "Done!"
 // message in the standard output.
-func RunConverter() error {
-	var (
-		dir = flag.String("d", ".", "Indicate directory to convert")
-		in  = flag.String("i", "jpg", "Indicate input image file's extension")
-		out = flag.String("o", "png", "Indicate output image file's extension")
-	)
-
-	flag.Parse()
+func RunConverter(dir *string, in *string, out *string) error {
 	c, err := newConverter(*dir, *in, *out)
 	if err != nil {
 		// log.Fatal(err)
@@ -86,11 +78,18 @@ func (c *converter) Convert() error {
 }
 
 func (c *converter) getSourceFiles() ([]os.FileInfo, error) {
+	var outputFiles []os.FileInfo
 	files, err := ioutil.ReadDir(c.dirname)
 	if err != nil {
 		return nil, err
 	}
-	return files, nil
+	for _, f := range files {
+		if !f.IsDir() {
+			outputFiles = append(outputFiles, f)
+		}
+	}
+
+	return outputFiles, nil
 }
 
 func (c *converter) convertFiles(files []os.FileInfo) error {

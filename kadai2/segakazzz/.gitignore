@@ -2,3 +2,5 @@
 testdata/*.jpg
 testdata/*.png
 testdata/out
+testdata/test
+testdata/error
