@@ -1,49 +1,30 @@
 package imgconv
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-var (
-	// flags
-	f      = flag.String("f", "jpg", "file extention before convert")
-	t      = flag.String("t", "png", "file extention after convert")
-	dryRun = flag.Bool("n", false, "dry run")
-
-	// allow extensions
-	allowedExts = exts{"png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif"}
-)
-
-func init() {
-	flag.Parse()
-}
+var allowedExts = []string{"png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif"}
 
 // Run is to convert image file format
-func Run() error {
-	// check options ext
-	to := strings.ToLower(*t)
-	from := strings.ToLower(*f)
-	targetExts := []string{to, from}
-	for _, e := range targetExts {
-		if err := allowedExts.include(e); err != nil {
-			return fmt.Errorf("%w. ext is only allowd in %s", err, allowedExts)
-		}
+func Run(options Options, args Args) error {
+	// validator
+	if err := options.validate(allowedExts); err != nil {
+		return err
 	}
 
 	// get target image paths from args
-	dns := flag.Args()
-	udns := uniq(dns)
-	paths, err := getPaths(udns, from)
+	udns := args.uniq()
+	paths, err := getPaths(udns, *options.From)
 	if err != nil {
 		return err
 	}
 
 	// convert
-	imgs, err := createConvImages(paths, from, to)
+	imgs, err := createConvImages(paths, *options.From, *options.To)
 	if err != nil {
 		return err
 	}
@@ -52,7 +33,7 @@ func Run() error {
 			return err
 		}
 
-		if *dryRun {
+		if *options.DryRun {
 			fmt.Println(img.filename+"."+img.fromExt, "=>", img.filename+"."+img.toExt)
 		} else {
 			if err := img.encode(); err != nil {
@@ -62,20 +43,6 @@ func Run() error {
 	}
 
 	return nil
-}
-
-func uniq(s []string) []string {
-	m := map[string]bool{}
-	u := []string{}
-
-	for _, v := range s {
-		if !m[v] {
-			m[v] = true
-			u = append(u, v)
-		}
-	}
-
-	return u
 }
 
 func getPaths(dns []string, from string) ([]string, error) {
