@@ -4,57 +4,53 @@ import (
 	"testing"
 )
 
-// func isSameConverter(actual *converter, expected *converter) bool {
-// 	if actual == nil && expected == nil {
-// 		return true
-// 	}
-// 	if actual != nil && expected == nil {
-// 		return false
-// 	}
-// 	if actual == nil && expected != nil {
-// 		return false
-// 	}
-// 	if actual.dirname != expected.dirname {
-// 		return false
-// 	}
-// 	if actual.input != expected.input {
-// 		return false
-// 	}
-// 	if actual.output != expected.output {
-// 		return false
-// 	}
-// 	return true
-// }
+type pattern struct {
+	dirname  string
+	input    string
+	output   string
+	expected *converter
+	isError  bool
+}
 
 func TestNewConverter(t *testing.T) {
-	patterns := []struct {
-		dirname  string
-		input    string
-		output   string
-		expected *converter
-		isError  bool
-	}{
+	successPatterns := []pattern{
 		{"testdata", "png", "jpg", &converter{dirname: "testdata", input: "png", output: "jpg"}, false},
 		{"testdata", "jpg", "png", &converter{dirname: "testdata", input: "jpg", output: "png"}, false},
-		{"testdata", "jpg", "gif", nil, true},
+	}
+	errorPatterns := []pattern{
+		{"testdata", "jpg", "gif", &converter{}, true},
 		{"testdata", "gif", "jpg", nil, true},
 		{"testdata", "jpg", "jpg", nil, true},
 	}
 
-	for i, p := range patterns {
-		actual, err := newConverter(p.dirname, p.input, p.output)
-		if err != nil && p.isError == false {
-			t.Errorf("pattern: %d want: NO ERROR, actual: %v", i, err)
+	t.Run("successPatterns", func(t *testing.T) {
+		for i, p := range successPatterns {
+			testNewConverter(t, i, p)
 		}
-		if err == nil && p.isError == true {
-			t.Errorf("pattern: %d want: ERROR, actual: NO ERROR", i)
-		}
-		if (actual == nil && p.expected != nil) || (actual != nil && p.expected == nil) {
-			t.Errorf("pattern: %d want: isNil(%t), actual: isNil(%t)", i, p.expected == nil, actual == nil)
-		}
+	})
 
-		if actual != nil && p.expected != nil && *actual != *p.expected {
-			t.Errorf("pattern: %d want: %v [%T], actual: %v [%T]", i, *p.expected, *p.expected, *actual, *actual)
+	t.Run("errorPatterns", func(t *testing.T) {
+		for i, p := range errorPatterns {
+			testNewConverter(t, i, p)
 		}
+	})
+}
+
+func testNewConverter(t *testing.T, i int, p pattern) {
+	t.Helper()
+	actual, err := newConverter(p.dirname, p.input, p.output)
+	if err != nil && p.isError == false {
+		t.Fatalf("pattern[%d]: %v want: NO ERROR, actual: %v", i, p, err)
 	}
+	if err == nil && p.isError == true {
+		t.Fatalf("pattern[%d]: %v want: ERROR, actual: NO ERROR", i, p)
+	}
+	if (actual == nil && p.expected != nil) || (actual != nil && p.expected == nil) {
+		t.Fatalf("pattern[%d]: %v want: isNil(%t), actual: isNil(%t)", i, p, p.expected == nil, actual == nil)
+	}
+
+	if actual != nil && p.expected != nil && *actual != *p.expected {
+		t.Fatalf("pattern[%d]: %v want: %v [%T], actual: %v [%T]", i, p, *p.expected, *p.expected, *actual, *actual)
+	}
+
 }
