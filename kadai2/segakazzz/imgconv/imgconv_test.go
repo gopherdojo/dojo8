@@ -49,9 +49,12 @@ func TestNewConverter(t *testing.T) {
 		if err == nil && p.isError == true {
 			t.Errorf("pattern: %d want: ERROR, actual: NO ERROR", i)
 		}
+		if (actual == nil && p.expected != nil) || (actual != nil && p.expected == nil) {
+			t.Errorf("pattern: %d want: isNil(%t), actual: isNil(%t)", i, p.expected == nil, actual == nil)
+		}
 
 		if actual != nil && p.expected != nil && *actual != *p.expected {
-			t.Errorf("pattern: %d want: %v [%T], actual: %v [%T]", i, *actual, *actual, *p.expected, *p.expected)
+			t.Errorf("pattern: %d want: %v [%T], actual: %v [%T]", i, *p.expected, *p.expected, *actual, *actual)
 		}
 	}
 }
