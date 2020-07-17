@@ -47,9 +47,17 @@ func Run(options Options, args Args) error {
 
 func getTargetFilePaths(args Args, from string) ([]string, error) {
 	uns := args.uniq()
-	paths := []string{}
 
+	paths := []string{}
 	for _, n := range uns {
+		b, err := isDir(n)
+		if err != nil {
+			return nil, err
+		}
+		if !b {
+			return nil, fmt.Errorf("%s is not a directory", n)
+		}
+
 		if err := filepath.Walk(n, func(path string, info os.FileInfo, err error) error {
 			if filepath.Ext(path) == "."+from {
 				paths = append(paths, path)
@@ -61,6 +69,20 @@ func getTargetFilePaths(args Args, from string) ([]string, error) {
 	}
 
 	return paths, nil
+}
+
+func isDir(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+
+	fi, err := f.Stat()
+	if err != nil {
+		return false, err
+	}
+
+	return fi.IsDir(), nil
 }
 
 func createConvImages(paths []string, from, to string) ([]convImage, error) {
