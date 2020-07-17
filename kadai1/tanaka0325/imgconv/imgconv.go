@@ -16,9 +16,8 @@ func Run(options Options, args Args) error {
 		return err
 	}
 
-	// get target image paths from args
-	udns := args.uniq()
-	paths, err := getPaths(udns, *options.From)
+	// get target image flepaths from args
+	paths, err := getTargetFilePaths(args, *options.From)
 	if err != nil {
 		return err
 	}
@@ -45,11 +44,12 @@ func Run(options Options, args Args) error {
 	return nil
 }
 
-func getPaths(dns []string, from string) ([]string, error) {
+func getTargetFilePaths(args Args, from string) ([]string, error) {
+	uns := args.uniq()
 	paths := []string{}
 
-	for _, dn := range dns {
-		if err := filepath.Walk(dn, func(path string, info os.FileInfo, err error) error {
+	for _, n := range uns {
+		if err := filepath.Walk(n, func(path string, info os.FileInfo, err error) error {
 			if filepath.Ext(path) == "."+from {
 				paths = append(paths, path)
 			}
