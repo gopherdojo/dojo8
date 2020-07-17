@@ -6,26 +6,26 @@ import (
 	"io"
 )
 
-const QUALITY = 100
-
 type JpegImage struct{}
 
-var jpegExt = map[string]bool{
-	".jpg":  true,
-	".jpeg": true,
-	".JPG":  true,
-	".JPEG": true,
+func (*JpegImage) GetEncoder() Encoder {
+	return &JpegEncoder{}
 }
 
-func (JpegImage) Encode(w io.Writer, m image.Image) error {
-	err := jpeg.Encode(w, m, &jpeg.Options{Quality: QUALITY})
-	return err
-}
+func (*JpegImage) IsMatchExt(ext string) bool {
+	var jpegExt = map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".JPG":  true,
+		".JPEG": true,
+	}
 
-func (ji JpegImage) IsMatchExt(ext string) bool {
 	return jpegExt[ext]
 }
 
-func (JpegImage) GetMainExt() string {
-	return ".jpg"
+type JpegEncoder struct{}
+
+func (*JpegEncoder) execute(w io.Writer, Image image.Image) error {
+	err := jpeg.Encode(w, Image, &jpeg.Options{Quality: jpeg.DefaultQuality})
+	return err
 }

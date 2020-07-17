@@ -1,36 +1,26 @@
 package imgconv
 
 import (
-	"errors"
-	"os"
-	"path/filepath"
+	"fmt"
+	"image"
+	"io"
 )
 
-func Call(dir, from, to string) error {
-	if dir == "" {
-		return errors.New("Please specify a directory.")
-	}
+type Converter struct {
+	encoder Encoder
+}
 
-	if f, err := os.Stat(dir); os.IsNotExist(err) || !f.IsDir() {
-		return errors.New("Cannot find directory.")
-	}
+func NewConverter(encoder Encoder) *Converter {
+	return &Converter{encoder}
+}
 
-	converter, err := newConverter(from, to)
+func (c *Converter) Execute(in io.Reader, out io.Writer) error {
+	fmt.Println("hoge")
+	img, _, err := image.Decode(in)
 	if err != nil {
 		return err
 	}
 
-	err = filepath.Walk(dir,
-		func(path string, info os.FileInfo, err error) error {
-			err = converter.Execute(path)
-			if !IsNotMatchExt(err) {
-				return err
-			}
-			return nil
-		})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Println("hoge")
+	return c.encoder.execute(out, img)
 }

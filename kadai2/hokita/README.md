@@ -1,66 +1,52 @@
-# 課題 1 画像変換コマンドを作ろう
+# 課題2
+## io.Readerとio.Writer
+### io.Readerとio.Writerについて調べてみよう
+- io.Readerとio.Writerについて調べてみよう
+  - 標準パッケージでどのように使われているか
+  - io.Readerとio.Writerがあることでどういう利点があるのか具体例を挙げて考えてみる
 
-## 課題内容
-### 次の仕様を満たすコマンドを作って下さい
+### 解答
+#### 標準パッケージでどのように使われているか
+- strings
+  - 文字列操作
+- bufio
+  - バッファリングしながら読み書きする
+- bytes
+  - バイトスライスを操作する
 
-- ディレクトリを指定する
-- 指定したディレクトリ以下の JPG ファイルを PNG に変換（デフォルト）
-- ディレクトリ以下は再帰的に処理する
-- 変換前と変換後の画像形式を指定できる（オプション）
+#### io.Readerとio.Writerがあることでどういう利点があるのか具体例を挙げて考えてみる
+IOが統一されているため、標準入出力、ファイル、ネットワーク通信どのような場合でも、入出力処理をする側、それを使う側がお互いの処理内容を知らなくてすみ、付け替えも可能。
 
-### 以下を満たすように開発してください
+例えばファイルを読み込んで処理Aをするアプリがあり、今回新しくHTTPレスポンスからA処理をする機能を追加したい場合、io.Readerを返すHTTPレスポンス読込処理を用意すれば、処理A自体を変更する必要はない。また処理Aのテストは出力を意識する必要もない。
 
-- main パッケージと分離する
-- 自作パッケージと標準パッケージと準標準パッケージのみ使う
-- 準標準パッケージ：golang.org/x 以下のパッケージ
-- ユーザ定義型を作ってみる
-- GoDoc を生成してみる
-- Go Modules を使ってみる
+## テストを書いてみよう
+### 1回目の課題のテストを作ってみて下さい
+  - テストのしやすさを考えてリファクタリングしてみる
+  - テストのカバレッジを取ってみる
+  - テーブル駆動テストを行う
+  - テストヘルパーを作ってみる
 
-## 対応したこと
-- 画像を変換
-  - 現状はjpg, pngのみ
-  - jpg, png以外はエラー表示
-  - 画像出力先は対象画像と同じディレクトリ
-- 指定したディレクトリが無いとエラーを表示
+### 対応
+#### テストのしやすさを考えてリファクタリングしてみる
+- `io.Readerとio.Writer`の課題を通して`(c *Converter) Execute(in io.Reader, out io.Writer)`を作成した。
 
-## 動作
+#### テストのカバレッジを取ってみる
 ```shell
-$ go build -o test_imgconv
+$ go test -coverprofile=profile github.com/gopherdojo/dojo8/kadai2/hokita/imgconv/
+ok      github.com/gopherdojo/dojo8/kadai2/hokita/imgconv       0.438s  coverage: 79.5% o
+f statements
 
-$ ./test_imgconv -h
-Usage of ./test_imgconv:
-  -from string
-        Conversion source extension. (default "jpg")
-  -to string
-        Conversion target extension. (default "png")
-
-# testdata内のすべてのjpgファイルをpngに変換する
-$ ./test_imgconv testdata
-Conversion finished!
-
-# testdata内のすべてのpngファイルをjpgに変換する
-$ ./test_imgconv -from png -to jpg testdata
-Conversion finished!
-
-# ディレクトリの指定が無い場合はエラー
-$ ./test_imgconv
-Please specify a directory.
-
-# 存在しないディレクトリの場合はエラー
-$ ./test_imgconv non_exist_dir
-Cannot find directory.
-
-# 対応していない拡張子の場合はエラー
-$ ./test_imgconv -from txt -to jpg testdata
-Selected extension is not supported.
+$ go test -coverprofile=profile github.com/gopherdojo/dojo8/kadai2/hokita/imgconv/imgconv
+ok      github.com/gopherdojo/dojo8/kadai2/hokita/imgconv/imgconv       0.476s  coverage:
+ 95.7% of statements
 ```
 
-## 工夫したこと
-- png, jpg以外にも拡張子が増えそうなので、`image_type`というinterfaceを作ってみた。
-- 拡張子の微妙な違い（jpg, jpeg, JPGなど）にも対応できるようにした。
+#### テーブル駆動テストを行う
+- `map[string]struct`で作ってみた。
+
+#### テストヘルパーを作ってみる
+- convertで作成されたファイル確認、削除処理をする`checkAndDeleteFile`を作成
 
 ## わからなかったこと、むずかしかったこと
-- go mod initで指定するmodule名に命名規則があるのか。
-- 普段オブジェクト指向（その上動的型付け言語）で書いているので、それがgoらしいコードになっているのか不安。
-  - なんでもかんでも構造体メソッドにしたい願望がでてくる
+- モックをしたいがためにinterfaceを無理やり作ることはあるのだろうか。
+- だからと言って抽象化してモックしないとunitテストではなくE2Eテストになってしまいそう。

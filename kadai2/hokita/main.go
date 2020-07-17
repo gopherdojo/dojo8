@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-
-	"github.com/gopherdojo/dojo8/kadai2/hokita/imgconv/imgconv"
 )
 
 const (
@@ -21,14 +19,13 @@ func init() {
 }
 
 func main() {
-	os.Exit(run())
+	flag.Parse()
+	exitCode := run(flag.Arg(0))
+	os.Exit(exitCode)
 }
 
-func run() int {
-	flag.Parse()
-	dir := flag.Arg(0)
-
-	err := imgconv.Call(dir, from, to)
+func run(arg string) int {
+	err := convert(arg, from, to)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)

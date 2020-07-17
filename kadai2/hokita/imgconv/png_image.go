@@ -8,20 +8,22 @@ import (
 
 type PngImage struct{}
 
-var pngExt = map[string]bool{
-	".png": true,
-	".PNG": true,
+func (*PngImage) GetEncoder() Encoder {
+	return &PngEncoder{}
 }
 
-func (PngImage) Encode(w io.Writer, m image.Image) error {
-	err := png.Encode(w, m)
-	return err
-}
+func (*PngImage) IsMatchExt(ext string) bool {
+	var pngExt = map[string]bool{
+		".png": true,
+		".PNG": true,
+	}
 
-func (pi PngImage) IsMatchExt(ext string) bool {
 	return pngExt[ext]
 }
 
-func (PngImage) GetMainExt() string {
-	return ".png"
+type PngEncoder struct{}
+
+func (*PngEncoder) execute(w io.Writer, Image image.Image) error {
+	err := png.Encode(w, Image)
+	return err
 }
