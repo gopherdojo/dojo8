@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Args is type for command line options.
 type Options struct {
 	From   *string
 	To     *string

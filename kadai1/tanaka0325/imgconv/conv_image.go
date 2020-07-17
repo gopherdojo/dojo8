@@ -13,6 +13,7 @@ import (
 	"golang.org/x/image/tiff"
 )
 
+// convImage is type included infomation to convert file format.
 type convImage struct {
 	filename string
 	fromExt  string

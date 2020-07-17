@@ -1,5 +1,6 @@
 package imgconv
 
+// Args is type for command line arguments.
 type Args []string
 
 func (args Args) uniq() []string {

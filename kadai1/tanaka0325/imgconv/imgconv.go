@@ -1,3 +1,4 @@
+// Imgconv package is to convert images file format.
 package imgconv
 
 import (
