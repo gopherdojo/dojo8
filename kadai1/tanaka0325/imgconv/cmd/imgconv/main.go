@@ -12,8 +12,8 @@ var options imgconv.Options
 var args imgconv.Args
 
 func init() {
-	options.From = flag.String("f", "jpg", "file extention before convert")
-	options.To = flag.String("t", "png", "file extention after convert")
+	options.From = flag.String("f", "jpg", "file extension before convert")
+	options.To = flag.String("t", "png", "file extension after convert")
 	options.DryRun = flag.Bool("n", false, "dry run")
 	flag.Parse()
 
