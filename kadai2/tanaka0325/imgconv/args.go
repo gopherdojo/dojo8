@@ -10,6 +10,7 @@ func (args Args) uniq() []string {
 	for _, v := range args {
 		if !m[v] {
 			m[v] = true
+
 			u = append(u, v)
 		}
 	}

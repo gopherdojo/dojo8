@@ -13,13 +13,14 @@ type Options struct {
 	DryRun *bool
 }
 
-func (opt Options) validate(allow_list []string) error {
+func (opt Options) validate(allowList []string) error {
 	to := strings.ToLower(*opt.To)
 	from := strings.ToLower(*opt.From)
 	targetExts := []string{to, from}
+
 	for _, e := range targetExts {
-		if err := include(allow_list, e); err != nil {
-			return fmt.Errorf("%w. ext is only allowd in %s", err, allow_list)
+		if err := include(allowList, e); err != nil {
+			return fmt.Errorf("%w. ext is only allowd in %s", err, allowList)
 		}
 	}
 

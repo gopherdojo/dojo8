@@ -9,40 +9,72 @@ import (
 )
 
 var allowedExts = []string{"png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif"}
+var fromExt string
+var toExt string
 
-// Run is to convert image file format
+// Run is to convert image file format.
 func Run(options Options, args Args) error {
-	// validator
+	// // validator
 	if err := options.validate(allowedExts); err != nil {
 		return err
 	}
 
+	fromExt = *options.From
+	toExt = *options.To
+
 	// get target image flepaths from args
-	paths, err := getTargetFilePaths(args, *options.From)
+	paths, err := getTargetFilePaths(args, fromExt)
 	if err != nil {
 		return err
 	}
 
 	// convert
-	imgs, err := createConvImages(paths, *options.From, *options.To)
-	if err != nil {
-		return err
-	}
-	for _, img := range imgs {
-		if err := img.decode(); err != nil {
-			return err
-		}
+	for _, path := range paths {
+		filename := strings.Replace(path, "."+fromExt, "", -1)
+		// "))
+		f := newCnvImage(fromExt)
+		t := newCnvImage(toExt)
 
 		if *options.DryRun {
-			fmt.Println(img.filename+"."+img.fromExt, "=>", img.filename+"."+img.toExt)
-		} else {
-			if err := img.encode(); err != nil {
-				return err
-			}
+			fmt.Printf("%s.%s => %s.%s \n", filename, fromExt, filename, toExt)
+		} else if err := convert(f, t, filename); err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+func convert(d Decoder, e Encoder, filename string) (err error) {
+	// open file
+	r, err := os.Open(filename + "." + fromExt)
+	if err != nil {
+		return
+	}
+	defer r.Close()
+
+	// decode
+	img, err := d.Decode(r)
+	if err != nil {
+		return
+	}
+
+	// create file
+	w, err := os.Create(filename + "." + toExt)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err = w.Close()
+	}()
+
+	// encode
+	if err := e.Encode(w, img); err != nil {
+		return err
+	}
+
+	return
 }
 
 func getTargetFilePaths(args Args, from string) ([]string, error) {
@@ -50,11 +82,9 @@ func getTargetFilePaths(args Args, from string) ([]string, error) {
 
 	paths := []string{}
 	for _, n := range uns {
-		b, err := isDir(n)
-		if err != nil {
+		if ok, err := isDir(n); err != nil {
 			return nil, err
-		}
-		if !b {
+		} else if !ok {
 			return nil, fmt.Errorf("%s is not a directory", n)
 		}
 
@@ -83,18 +113,4 @@ func isDir(path string) (bool, error) {
 	}
 
 	return fi.IsDir(), nil
-}
-
-func createConvImages(paths []string, from, to string) ([]convImage, error) {
-	images := []convImage{}
-	for _, p := range paths {
-		i := convImage{
-			filename: strings.Replace(p, "."+from, "", 1),
-			fromExt:  strings.ToLower(from),
-			toExt:    strings.ToLower(to),
-		}
-		images = append(images, i)
-	}
-
-	return images, nil
 }
