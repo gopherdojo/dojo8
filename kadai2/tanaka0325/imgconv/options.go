@@ -1,7 +1,6 @@
 package imgconv
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -19,19 +18,20 @@ func (opt Options) validate(allowList []string) error {
 	targetExts := []string{to, from}
 
 	for _, e := range targetExts {
-		if err := include(allowList, e); err != nil {
-			return fmt.Errorf("%w. ext is only allowd in %s", err, allowList)
+		if !isInclude(allowList, e) {
+			return fmt.Errorf("%s is not allowed. ext is only allowed in %s", e, allowList)
 		}
 	}
 
 	return nil
 }
 
-func include(list []string, w string) error {
+func isInclude(list []string, w string) bool {
 	for _, e := range list {
 		if e == w {
-			return nil
+			return true
 		}
 	}
-	return errors.New(w + " is not allowed")
+
+	return false
 }
