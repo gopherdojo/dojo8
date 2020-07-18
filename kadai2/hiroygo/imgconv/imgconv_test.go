@@ -36,7 +36,9 @@ func TestToImageType(t *testing.T) {
 	}
 
 	for _, c := range cases {
+		c := c
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 			if actual := imgconv.ToImageType(c.input); actual != c.expected {
 				t.Errorf("want ToImageType(%s) = %v, got %v", c.input, c.expected, actual)
 			}
@@ -59,7 +61,9 @@ func TestImageFilePathesRecursive(t *testing.T) {
 	}
 
 	for _, c := range cases {
+		c := c
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 			actual, err := imgconv.ImageFilePathesRecursive(c.dir, c.imgType)
 			if err != nil {
 				t.Fatalf("ImageFilePathesRecursive(%s, %v) error %v", c.dir, c.imgType, err)
@@ -90,7 +94,9 @@ func TestLoadImage(t *testing.T) {
 	}
 
 	for _, c := range cases {
+		c := c
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 			_, err := imgconv.LoadImage(c.path)
 			if !c.wantErr && err != nil {
 				t.Errorf("LoadImage(%s) error %v", c.path, err)
@@ -120,7 +126,9 @@ func TestReplaceExt(t *testing.T) {
 	}
 
 	for _, c := range cases {
+		c := c
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 			actual := imgconv.ReplaceExt(c.path, c.outType)
 			if actual != c.expected {
 				t.Errorf("want ReplaceExt(%s, %v) = %s, got %s", c.path, c.outType, c.expected, actual)
