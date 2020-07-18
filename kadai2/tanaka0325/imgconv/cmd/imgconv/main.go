@@ -41,8 +41,8 @@ func main() {
 	for _, path := range paths {
 		param := imgconv.ConvertParam{
 			Path:        path,
-			BeforeImage: imgconv.NewCnvImage(*options.From),
-			AfterImage:  imgconv.NewCnvImage(*options.To),
+			BeforeImage: imgconv.NewImage(*options.From),
+			AfterImage:  imgconv.NewImage(*options.To),
 			FromExt:     *options.From,
 			ToExt:       *options.To,
 		}
