@@ -1,10 +1,12 @@
-package imgconv
+package imgconv_test
 
 import (
 	"testing"
+
+	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
 
-func TestOption_validate(t *testing.T) {
+func TestOptionsValidate(t *testing.T) {
 	notAllowdExt := "not_allowed_ext"
 	jpg := "jpg"
 	png := "png"
@@ -12,13 +14,13 @@ func TestOption_validate(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		options Options
+		options imgconv.Options
 		args    []string
 		isErr   bool
 	}{
 		{
 			name: "err:Options.From is not allowed",
-			options: Options{
+			options: imgconv.Options{
 				From: &notAllowdExt,
 				To:   &png,
 			},
@@ -27,7 +29,7 @@ func TestOption_validate(t *testing.T) {
 		},
 		{
 			name: "err:Options.To is not allowed",
-			options: Options{
+			options: imgconv.Options{
 				From: &jpg,
 				To:   &notAllowdExt,
 			},
@@ -36,7 +38,7 @@ func TestOption_validate(t *testing.T) {
 		},
 		{
 			name: "ok",
-			options: Options{
+			options: imgconv.Options{
 				From: &jpg,
 				To:   &png,
 			},
@@ -47,7 +49,7 @@ func TestOption_validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.options.validate(tt.args)
+			err := tt.options.Validate(tt.args)
 			if (tt.isErr && err == nil) || (!tt.isErr && err != nil) {
 				t.Errorf("expect err is %t, but got err is %s", tt.isErr, err)
 			}
