@@ -17,7 +17,7 @@ func TestOption_validate(t *testing.T) {
 		isErr   bool
 	}{
 		{
-			name: "err: Options.From is not allowed",
+			name: "err:Options.From is not allowed",
 			options: Options{
 				From: &notAllowdExt,
 				To:   &png,
@@ -26,7 +26,7 @@ func TestOption_validate(t *testing.T) {
 			isErr: true,
 		},
 		{
-			name: "err: Options.To is not allowed",
+			name: "err:Options.To is not allowed",
 			options: Options{
 				From: &jpg,
 				To:   &notAllowdExt,
