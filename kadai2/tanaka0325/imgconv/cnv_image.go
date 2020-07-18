@@ -63,7 +63,7 @@ func (ip CnvImageTIFF) Decode(r io.Reader) (image.Image, error) { return tiff.De
 
 func (ip CnvImageTIFF) Encode(w io.Writer, i image.Image) error { return tiff.Encode(w, i, nil) }
 
-func newCnvImage(ext string) DecodeEncoder {
+func NewCnvImage(ext string) DecodeEncoder {
 	switch ext {
 	case "png":
 		return &CnvImagePNG{}

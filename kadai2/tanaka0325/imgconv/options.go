@@ -12,7 +12,7 @@ type Options struct {
 	DryRun *bool
 }
 
-func (opt Options) validate(allowList []string) error {
+func (opt Options) Validate(allowList []string) error {
 	to := strings.ToLower(*opt.To)
 	from := strings.ToLower(*opt.From)
 	targetExts := []string{to, from}
