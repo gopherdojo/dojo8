@@ -48,7 +48,7 @@ func main() {
 		}
 
 		if !*options.DryRun {
-			if err := imgconv.Convert(param); err != nil {
+			if err := imgconv.Do(param); err != nil {
 				onExit(err)
 			}
 		} else {

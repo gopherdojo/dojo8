@@ -13,7 +13,7 @@ type ConvertParam struct {
 	ToExt       string
 }
 
-func Convert(param ConvertParam) (err error) {
+func Do(param ConvertParam) (err error) {
 	// open file
 	r, err := os.Open(param.Path + "." + param.FromExt)
 	if err != nil {
