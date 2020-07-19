@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -20,36 +19,15 @@ type game struct {
 	source     []string
 	questions  []singleGame
 	matchRatio float64
+	numMatch   int
 	timeout    time.Duration
-	gch        *gameCh
+	errCh      chan error
 }
 
 type singleGame struct {
-	input           string
-	answer          string
-	match           bool
-	cumulativeMatch int
-}
-
-type gameCh struct {
-	ch     chan singleGame
-	closed bool
-	mutex  sync.Mutex
-}
-
-func (gc *gameCh) safeClose() {
-	gc.mutex.Lock()
-	defer gc.mutex.Unlock()
-	if !gc.closed {
-		close(gc.ch)
-		gc.closed = true
-	}
-}
-
-func (gc *gameCh) isClosed() bool {
-	gc.mutex.Lock()
-	defer gc.mutex.Unlock()
-	return gc.closed
+	input  string
+	answer string
+	match  bool
 }
 
 func Run(filename string, timeout time.Duration) error {
@@ -57,28 +35,16 @@ func Run(filename string, timeout time.Duration) error {
 	if err != nil {
 		return err
 	}
-
 	go func() {
-		var sg singleGame
-		for i, v := range g.source {
-			fmt.Fprintf(g.out, "[%d] %s >>> ", i + 1, v)
-			input, _ := g.buffReader.ReadString('\n')
-			input = strings.TrimSuffix(input, "\n")
-
-			sg.input = input
-			sg.answer = v
-			sg.match = (input == v)
-			if input == v {
-				sg.cumulativeMatch++
-			}
-
-			if !g.gch.isClosed() {
-				g.gch.ch <- sg
-			}
+		err := g.processGame()
+		if err !=nil {
+			g.errCh <- err
 		}
 	}()
 
 	select {
+	case err=<-g.errCh:
+		return err
 	case <-time.After(g.timeout):
 		g.displayResult()
 		return nil
@@ -86,20 +52,37 @@ func Run(filename string, timeout time.Duration) error {
 
 }
 
-func (g *game) calcResult() {
-	nMatch := g.questions[len(g.questions)-1].cumulativeMatch
-	nTotal := len(g.questions)
-	g.matchRatio = (float64(nMatch) / float64(nTotal)) * 100
+func (g *game) processGame() error{
+
+	var sg singleGame
+	for i, v := range g.source {
+		fmt.Fprintf(g.out, "[%d] %s >>> ", i+1, v)
+		input, err := g.buffReader.ReadString('\n')
+		if err != nil {
+			return err
+		}
+		input = strings.TrimSuffix(input, "\n")
+		sg.input = input
+		sg.answer = v
+		sg.match = (input == v)
+		g.updateSingleGameResult(sg)
+	}
+
+	return nil
+
+}
+func (g *game) updateSingleGameResult(sg singleGame) {
+	g.questions = append(g.questions, sg)
+	if sg.match {
+		g.numMatch++
+	}
+	g.matchRatio = (float64(g.numMatch) / float64(len(g.questions))) * 100
 }
 
 func (g *game) displayResult() {
 	fmt.Fprintln(g.out)
 	fmt.Fprintln(g.out, strings.Repeat("-", 80))
 	fmt.Fprintln(g.out, "Timeout!")
-	g.gch.safeClose()
-	for rec := range g.gch.ch {
-		g.questions = append(g.questions, rec)
-	}
 	fmt.Fprintf(g.out, "%-10s %-20s %-20s %-5s\n", "#", "Your Input", "Answer", "Correct?")
 	fmt.Fprintln(g.out, strings.Repeat("=", 80))
 	for i, q := range g.questions {
@@ -111,12 +94,11 @@ func (g *game) displayResult() {
 		}
 		fmt.Fprintf(g.out, "%-10d %-20s %-20s %-5c\n", i+1, q.input, q.answer, correct)
 	}
-	g.calcResult()
 
 	fmt.Fprintf(g.out, "[Summary]\n")
-	fmt.Fprintf(g.out, "%-20s %-20s %-20s\n", "Num of Questions", "Num of Correct Ans", "Match Ratio")
+	fmt.Fprintf(g.out, "%-20s %-20s %-20s %-20s\n", "Num of Questions", "Num of Correct ANS", "Match Ratio[%]", "Timeout Duration[sec]")
 	fmt.Fprintln(g.out, strings.Repeat("=", 80))
-	fmt.Fprintf(g.out, "%-20d %-20d %.2f\n", len(g.questions), g.questions[len(g.questions)-1].cumulativeMatch, g.matchRatio)
+	fmt.Fprintf(g.out, "%-20d %-20d %-20.2f %-20s\n", len(g.questions), g.numMatch, g.matchRatio, g.timeout)
 }
 
 func newGame(filename string, timeout time.Duration) (g *game, err error) {
@@ -137,21 +119,15 @@ func newGame(filename string, timeout time.Duration) (g *game, err error) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(words), func(i, j int) { words[i], words[j] = words[j], words[i] })
 
-	gch := &gameCh{ch: make(chan singleGame, len(words))}
 	buffReader := bufio.NewReader(os.Stdin)
-	return &game{source: words, timeout: timeout, gch: gch, in: os.Stdin, out: os.Stdout, buffReader: buffReader}, nil
-}
 
-func (g *game) display(iw int, to io.Writer) error {
-	return nil
-}
-
-func (g *game) check(iw int) error {
-	// TODO : increment nRightAns, nQuestions
-
-	return nil
-}
-
-func (g *game) wait() error {
-	return nil
+	errCh := make(chan error)
+	return &game{
+		source: words,
+		timeout: timeout,
+		in: os.Stdin,
+		out: os.Stdout,
+		buffReader: buffReader,
+		errCh:errCh,
+	}, nil
 }
