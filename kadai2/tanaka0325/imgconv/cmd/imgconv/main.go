@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 
-	paths, err := getTargetFilenames(dirnames, from)
+	paths, err := getTargetFilepaths(dirnames, from)
 	if err != nil {
 		onExit(err)
 	}
@@ -110,14 +110,20 @@ func uniq([]string) []string {
 	return u
 }
 
-func getTargetFilenames(ds []string, ext string) ([]string, error) {
+func getTargetFilepaths(ds []string, ext string) ([]string, error) {
 	var names []string
+
 	for _, n := range ds {
 		if err := filepath.Walk(n, func(name string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
 			if filepath.Ext(name) == "."+ext {
 				n := strings.Replace(name, "."+ext, "", -1)
 				names = append(names, n)
 			}
+
 			return nil
 		}); err != nil {
 			return nil, err
