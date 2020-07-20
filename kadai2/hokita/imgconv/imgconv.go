@@ -1,7 +1,6 @@
 package imgconv
 
 import (
-	"fmt"
 	"image"
 	"io"
 )
@@ -15,12 +14,10 @@ func NewConverter(encoder Encoder) *Converter {
 }
 
 func (c *Converter) Execute(in io.Reader, out io.Writer) error {
-	fmt.Println("hoge")
 	img, _, err := image.Decode(in)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("hoge")
 	return c.encoder.execute(out, img)
 }
