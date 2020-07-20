@@ -24,12 +24,10 @@ func init() {
 }
 
 func main() {
-	// validate options
 	if err := options.Validate(allowedExts); err != nil {
 		onExit(err)
 	}
 
-	// get filenames
 	dirnames := uniq(args)
 	paths, err := getTargetFilenames(dirnames, *options.From)
 
@@ -37,10 +35,10 @@ func main() {
 		onExit(err)
 	}
 
-	// convert
 	for _, path := range paths {
 		param := imgconv.ConvertParam{
-			File:        imgconv.NewFile(path),
+			Path:        path,
+			File:        imgconv.NewFile(),
 			BeforeImage: imgconv.NewImage(*options.From),
 			AfterImage:  imgconv.NewImage(*options.To),
 			FromExt:     *options.From,
@@ -52,7 +50,7 @@ func main() {
 				onExit(err)
 			}
 		} else {
-			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", param.File.Path, param.FromExt, param.ToExt)
+			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", path, param.FromExt, param.ToExt)
 		}
 	}
 }

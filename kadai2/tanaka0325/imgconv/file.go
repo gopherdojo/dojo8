@@ -6,17 +6,15 @@ import (
 )
 
 type OpenCreator interface {
-	Open() (io.ReadCloser, error)
-	Create() (io.WriteCloser, error)
+	Open(string) (io.ReadCloser, error)
+	Create(string) (io.WriteCloser, error)
 }
 
-type File struct {
-	Path string
-}
+type File struct{}
 
-func (f File) Open() (io.ReadCloser, error)    { return os.Open(f.Path) }
-func (f File) Create() (io.WriteCloser, error) { return os.Create(f.Path) }
+func (File) Open(n string) (io.ReadCloser, error)    { return os.Open(n) }
+func (File) Create(n string) (io.WriteCloser, error) { return os.Create(n) }
 
-func NewFile(p string) File {
-	return File{Path: p}
+func NewFile() File {
+	return File{}
 }

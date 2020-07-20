@@ -12,6 +12,7 @@ type Options struct {
 	DryRun *bool
 }
 
+// Validate is func to check exts passed by options is allowed.
 func (opt Options) Validate(allowList []string) error {
 	to := strings.ToLower(*opt.To)
 	from := strings.ToLower(*opt.From)
