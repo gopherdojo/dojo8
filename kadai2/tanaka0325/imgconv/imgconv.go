@@ -13,7 +13,7 @@ type ConvertParam struct {
 
 // Do is func to convert image format.
 func Do(param ConvertParam) (err error) {
-	r, err := param.File.Open(param.Path + "." + param.FromExt)
+	r, err := param.File.Open(param.Path)
 	if err != nil {
 		return
 	}
@@ -24,7 +24,8 @@ func Do(param ConvertParam) (err error) {
 		return
 	}
 
-	w, err := param.File.Create(param.Path + "." + param.ToExt)
+	e := len(param.Path) - len(param.FromExt)
+	w, err := param.File.Create(param.Path[:e] + param.ToExt)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
@@ -81,7 +80,8 @@ func main() {
 				onExit(err)
 			}
 		} else {
-			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", path, from, param.ToExt)
+			e := len(param.Path) - len(param.FromExt)
+			fmt.Printf("%s => %s%s\n", path, path[:e], to)
 		}
 	}
 }
@@ -120,8 +120,7 @@ func getTargetFilepaths(ds []string, ext string) ([]string, error) {
 			}
 
 			if filepath.Ext(name) == "."+ext {
-				n := strings.Replace(name, "."+ext, "", -1)
-				names = append(names, n)
+				names = append(names, name)
 			}
 
 			return nil
