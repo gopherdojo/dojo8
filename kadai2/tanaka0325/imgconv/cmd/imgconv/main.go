@@ -10,27 +10,58 @@ import (
 	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
 
-var options imgconv.Options
 var args []string
-var allowedExts = []string{"png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif"}
+
+var (
+	from   string
+	to     string
+	dryRun bool
+)
+
+var allowedExts = map[string]bool{
+	"png":  true,
+	"jpg":  true,
+	"jpeg": true,
+	"gif":  true,
+	"bmp":  true,
+	"tiff": true,
+	"tif":  true,
+}
 
 func init() {
-	options.From = flag.String("f", "jpg", "file extension before convert")
-	options.To = flag.String("t", "png", "file extension after convert")
-	options.DryRun = flag.Bool("n", false, "dry run")
+	flag.StringVar(&from, "from", "jpg", "before ext")
+	flag.StringVar(&from, "f", "jpg", "before ext (short)")
+	flag.StringVar(&to, "to", "png", "after ext")
+	flag.StringVar(&to, "t", "png", "after ext (short)")
+	flag.BoolVar(&dryRun, "dry-run", false, "use dry-run")
+	flag.BoolVar(&dryRun, "n", false, "use dry-run (short)")
 	flag.Parse()
 
 	args = flag.Args()
 }
 
 func main() {
-	if err := options.Validate(allowedExts); err != nil {
-		onExit(err)
+	// validate options
+	if ok := isAllowedFileType(from); !ok {
+		onExit(fmt.Errorf("%s is invalid filetype", from))
+	}
+	if ok := isAllowedFileType(to); !ok {
+		onExit(fmt.Errorf("%s is invalid filetype", to))
 	}
 
+	// validate arguments
 	dirnames := uniq(args)
-	paths, err := getTargetFilenames(dirnames, *options.From)
+	for _, dirname := range dirnames {
+		ok, err := isDir(dirname)
+		if err != nil {
+			onExit(err)
+		}
+		if !ok {
+			onExit(fmt.Errorf("%s is not a directory", dirname))
+		}
+	}
 
+	paths, err := getTargetFilenames(dirnames, from)
 	if err != nil {
 		onExit(err)
 	}
@@ -39,20 +70,24 @@ func main() {
 		param := imgconv.ConvertParam{
 			Path:        path,
 			File:        imgconv.NewFile(),
-			BeforeImage: imgconv.NewImage(*options.From),
-			AfterImage:  imgconv.NewImage(*options.To),
-			FromExt:     *options.From,
-			ToExt:       *options.To,
+			BeforeImage: imgconv.NewImage(from),
+			AfterImage:  imgconv.NewImage(to),
+			FromExt:     from,
+			ToExt:       to,
 		}
 
-		if !*options.DryRun {
+		if !dryRun {
 			if err := imgconv.Do(param); err != nil {
 				onExit(err)
 			}
 		} else {
-			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", path, param.FromExt, param.ToExt)
+			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", path, from, param.ToExt)
 		}
 	}
+}
+
+func isAllowedFileType(ft string) bool {
+	return allowedExts[ft]
 }
 
 func onExit(err error) {
@@ -75,18 +110,12 @@ func uniq([]string) []string {
 	return u
 }
 
-func getTargetFilenames(ds []string, from string) ([]string, error) {
-	names := []string{}
+func getTargetFilenames(ds []string, ext string) ([]string, error) {
+	var names []string
 	for _, n := range ds {
-		if ok, err := isDir(n); err != nil {
-			return nil, err
-		} else if !ok {
-			return nil, fmt.Errorf("%s is not a directory", n)
-		}
-
 		if err := filepath.Walk(n, func(name string, info os.FileInfo, err error) error {
-			if filepath.Ext(name) == "."+from {
-				n := strings.Replace(name, "."+from, "", -1)
+			if filepath.Ext(name) == "."+ext {
+				n := strings.Replace(name, "."+ext, "", -1)
 				names = append(names, n)
 			}
 			return nil
@@ -103,6 +132,7 @@ func isDir(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
