@@ -66,15 +66,15 @@ func (ip ImageTIFF) Encode(w io.Writer, i image.Image) error { return tiff.Encod
 func NewImage(ext string) DecodeEncoder {
 	switch ext {
 	case "png":
-		return &ImagePNG{}
+		return ImagePNG{}
 	case "jpg", "jpeg":
-		return &ImageJPEG{}
+		return ImageJPEG{}
 	case "gif":
-		return &ImageGIF{}
+		return ImageGIF{}
 	case "bmp":
-		return &ImageBMP{}
+		return ImageBMP{}
 	case "tiff", "tif":
-		return &ImageTIFF{}
+		return ImageTIFF{}
 	}
 
 	return nil

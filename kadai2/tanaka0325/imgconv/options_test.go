@@ -42,8 +42,7 @@ func TestOptionsValidate(t *testing.T) {
 				From: &jpg,
 				To:   &png,
 			},
-			args:  allowedList,
-			isErr: false,
+			args: allowedList,
 		},
 	}
 

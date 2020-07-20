@@ -1,12 +1,8 @@
 // Imgconv package is to convert images file format.
 package imgconv
 
-import (
-	"os"
-)
-
 type ConvertParam struct {
-	Path        string
+	File        File
 	BeforeImage Decoder
 	AfterImage  Encoder
 	FromExt     string
@@ -15,7 +11,7 @@ type ConvertParam struct {
 
 func Do(param ConvertParam) (err error) {
 	// open file
-	r, err := os.Open(param.Path + "." + param.FromExt)
+	r, err := param.File.Open()
 	if err != nil {
 		return
 	}
@@ -28,7 +24,7 @@ func Do(param ConvertParam) (err error) {
 	}
 
 	// create file
-	w, err := os.Create(param.Path + "." + param.ToExt)
+	w, err := param.File.Create()
 	if err != nil {
 		return err
 	}

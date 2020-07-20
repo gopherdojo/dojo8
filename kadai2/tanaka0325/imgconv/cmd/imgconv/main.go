@@ -40,7 +40,7 @@ func main() {
 	// convert
 	for _, path := range paths {
 		param := imgconv.ConvertParam{
-			Path:        path,
+			File:        imgconv.NewFile(path),
 			BeforeImage: imgconv.NewImage(*options.From),
 			AfterImage:  imgconv.NewImage(*options.To),
 			FromExt:     *options.From,
@@ -52,7 +52,7 @@ func main() {
 				onExit(err)
 			}
 		} else {
-			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", param.Path, param.FromExt, param.ToExt)
+			fmt.Printf("%[1]s.%[2]s => %[1]s.%[3]s\n", param.File.Path, param.FromExt, param.ToExt)
 		}
 	}
 }
