@@ -4,16 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/gopherdojo/dojo8/kadai1/hiroygo/imgconv"
 )
-
-func getSaveFilePath(srcFilePath string, t imgconv.ImageType) string {
-	saveFileName := filepath.Base(srcFilePath[:len(srcFilePath)-len(filepath.Ext(srcFilePath))])
-	saveFileName += "." + t.String()
-	return filepath.Join(filepath.Dir(srcFilePath), saveFileName)
-}
 
 func parseArgs() (dir string, in, out imgconv.ImageType, err error) {
 	d := flag.String("d", "./", "変換の対象となる画像が格納されたディレクトリパス")
@@ -41,7 +34,7 @@ func main() {
 		return
 	}
 
-	pathes, err := imgconv.GetImageFilePathesRecursive(dir, inType)
+	pathes, err := imgconv.ImageFilePathesRecursive(dir, inType)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
@@ -54,7 +47,7 @@ func main() {
 			continue
 		}
 
-		savePath := getSaveFilePath(path, outType)
+		savePath := imgconv.ReplaceExt(path, outType)
 		if err := imgconv.SaveImage(m, outType, savePath); err != nil {
 			fmt.Fprintf(os.Stderr, "%s の保存に失敗しました。%v\n", savePath, err)
 			continue

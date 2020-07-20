@@ -1,6 +1,7 @@
 package imgconv
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/gif"
@@ -56,15 +57,14 @@ func ToImageType(s string) ImageType {
 }
 
 func imageTypeFromFileName(name string) ImageType {
-	ext := strings.ToLower(filepath.Ext(name))
-	ext = strings.Replace(ext, ".", "", -1)
-	return ToImageType(ext)
+	extWithoutDot := strings.TrimLeft(filepath.Ext(name), ".")
+	return ToImageType(strings.ToLower(extWithoutDot))
 }
 
-// GetImageFilePathesRecursive ディレクトリ内の指定された画像種別のファイルパスを再帰的に返す
-func GetImageFilePathesRecursive(dirPath string, target ImageType) ([]string, error) {
+// ImageFilePathesRecursive ディレクトリ内の指定された画像種別のファイルパスを再帰的に返す
+func ImageFilePathesRecursive(dir string, target ImageType) ([]string, error) {
 	var pathes []string
-	err := filepath.Walk(dirPath, func(visitPath string, f os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(visitPath string, f os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("WalkFunc error, %w", err)
 		}
@@ -104,17 +104,48 @@ func LoadImage(path string) (image.Image, error) {
 	return m, nil
 }
 
+// ReplaceExt 画像ファイルパスの拡張子を置換した結果を返す
+func ReplaceExt(path string, replace ImageType) string {
+	newName := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
+	newName += "." + replace.String()
+	return filepath.Join(filepath.Dir(path), newName)
+}
+
 // SaveImage Image を指定された画像形式で保存する
 func SaveImage(m image.Image, out ImageType, savePath string) (rerr error) {
 	if m == nil {
-		rerr = fmt.Errorf("Image が nil です")
-		return
+		return errors.New("Image が nil です")
+	}
+
+	var encoder func(*os.File, image.Image) error
+	switch out {
+	case Jpeg:
+		encoder = func(f *os.File, m image.Image) error {
+			return jpeg.Encode(f, m, nil)
+		}
+	case Png:
+		encoder = func(f *os.File, m image.Image) error {
+			return png.Encode(f, m)
+		}
+	case Tiff:
+		encoder = func(f *os.File, m image.Image) error {
+			return tiff.Encode(f, m, nil)
+		}
+	case Bmp:
+		encoder = func(f *os.File, m image.Image) error {
+			return bmp.Encode(f, m)
+		}
+	case Gif:
+		encoder = func(f *os.File, m image.Image) error {
+			return gif.Encode(f, m, nil)
+		}
+	default:
+		return fmt.Errorf("画像種別 %s は不明です", out.String())
 	}
 
 	f, err := os.Create(savePath)
 	if err != nil {
-		rerr = fmt.Errorf("Create error, %w", err)
-		return
+		return fmt.Errorf("Create error, %w", err)
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -122,22 +153,8 @@ func SaveImage(m image.Image, out ImageType, savePath string) (rerr error) {
 		}
 	}()
 
-	switch out {
-	case Jpeg:
-		err = jpeg.Encode(f, m, nil)
-	case Png:
-		err = png.Encode(f, m)
-	case Tiff:
-		err = tiff.Encode(f, m, nil)
-	case Bmp:
-		err = bmp.Encode(f, m)
-	case Gif:
-		err = gif.Encode(f, m, nil)
-	default:
-		err = fmt.Errorf("画像種別 %s は不明です", out.String())
-	}
-	if err != nil {
-		rerr = fmt.Errorf("Encode error, %w", err)
+	if err := encoder(f, m); err != nil {
+		return fmt.Errorf("Encode error, %w", err)
 	}
 
 	return
