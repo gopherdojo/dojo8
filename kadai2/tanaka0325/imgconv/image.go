@@ -25,54 +25,54 @@ type DecodeEncoder interface {
 }
 
 // ImagePng is type for png format.
-type ImagePNG struct{}
+type PNG struct{}
 
-func (ImagePNG) Decode(r io.Reader) (image.Image, error) { return png.Decode(r) }
+func (PNG) Decode(r io.Reader) (image.Image, error) { return png.Decode(r) }
 
-func (ImagePNG) Encode(w io.Writer, i image.Image) error { return png.Encode(w, i) }
+func (PNG) Encode(w io.Writer, i image.Image) error { return png.Encode(w, i) }
 
-// ImageJPEG is type for jpeg format.
-type ImageJPEG struct{}
+// JPEG is type for jpeg format.
+type JPEG struct{}
 
-func (ImageJPEG) Decode(r io.Reader) (image.Image, error) { return jpeg.Decode(r) }
+func (JPEG) Decode(r io.Reader) (image.Image, error) { return jpeg.Decode(r) }
 
-func (ImageJPEG) Encode(w io.Writer, i image.Image) error { return jpeg.Encode(w, i, nil) }
+func (JPEG) Encode(w io.Writer, i image.Image) error { return jpeg.Encode(w, i, nil) }
 
-// ImageGIF is type for gif format.
-type ImageGIF struct{}
+// GIF is type for gif format.
+type GIF struct{}
 
-func (ImageGIF) Decode(r io.Reader) (image.Image, error) { return gif.Decode(r) }
+func (GIF) Decode(r io.Reader) (image.Image, error) { return gif.Decode(r) }
 
-func (ImageGIF) Encode(w io.Writer, i image.Image) error {
+func (GIF) Encode(w io.Writer, i image.Image) error {
 	return gif.Encode(w, i, &gif.Options{NumColors: 256})
 }
 
-// ImageBMP is type for bmp format.
-type ImageBMP struct{}
+// BMP is type for bmp format.
+type BMP struct{}
 
-func (ImageBMP) Decode(r io.Reader) (image.Image, error) { return bmp.Decode(r) }
+func (BMP) Decode(r io.Reader) (image.Image, error) { return bmp.Decode(r) }
 
-func (ImageBMP) Encode(w io.Writer, i image.Image) error { return bmp.Encode(w, i) }
+func (BMP) Encode(w io.Writer, i image.Image) error { return bmp.Encode(w, i) }
 
-// ImageTIFF is type for tiff format.
-type ImageTIFF struct{}
+// TIFF is type for tiff format.
+type TIFF struct{}
 
-func (ImageTIFF) Decode(r io.Reader) (image.Image, error) { return tiff.Decode(r) }
+func (TIFF) Decode(r io.Reader) (image.Image, error) { return tiff.Decode(r) }
 
-func (ImageTIFF) Encode(w io.Writer, i image.Image) error { return tiff.Encode(w, i, nil) }
+func (TIFF) Encode(w io.Writer, i image.Image) error { return tiff.Encode(w, i, nil) }
 
 func NewImage(ext string) DecodeEncoder {
 	switch ext {
 	case "png":
-		return ImagePNG{}
+		return PNG{}
 	case "jpg", "jpeg":
-		return ImageJPEG{}
+		return JPEG{}
 	case "gif":
-		return ImageGIF{}
+		return GIF{}
 	case "bmp":
-		return ImageBMP{}
+		return BMP{}
 	case "tiff", "tif":
-		return ImageTIFF{}
+		return TIFF{}
 	}
 
 	return nil
