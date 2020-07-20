@@ -110,6 +110,21 @@ func uniq([]string) []string {
 	return u
 }
 
+func isDir(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
+	if err != nil {
+		return false, err
+	}
+
+	return fi.IsDir(), nil
+}
+
 func getTargetFilepaths(ds []string, ext string) ([]string, error) {
 	var names []string
 
@@ -130,19 +145,4 @@ func getTargetFilepaths(ds []string, ext string) ([]string, error) {
 	}
 
 	return names, nil
-}
-
-func isDir(path string) (bool, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	fi, err := f.Stat()
-	if err != nil {
-		return false, err
-	}
-
-	return fi.IsDir(), nil
 }
