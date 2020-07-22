@@ -10,7 +10,7 @@ import (
 	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
 
-func TestImgConvDo(t *testing.T) {
+func TestImgconvDo(t *testing.T) {
 	tests := []struct {
 		name  string
 		args  imgconv.ConvertParam
@@ -129,7 +129,7 @@ func TestImgConvDo(t *testing.T) {
 	}
 }
 
-func TestImgConv_convert(t *testing.T) {
+func TestImgconv_convert(t *testing.T) {
 	type args struct {
 		Reader  io.Reader
 		Decoder imgconv.Decoder

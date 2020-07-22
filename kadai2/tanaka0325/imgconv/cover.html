@@ -54,9 +54,9 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/file.go (0.0%)</option>
+				<option value="file0">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/file.go (33.3%)</option>
 				
-				<option value="file1">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/format.go (0.0%)</option>
+				<option value="file1">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/format.go (54.5%)</option>
 				
 				<option value="file2">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/imgconv.go (95.2%)</option>
 				
@@ -84,15 +84,12 @@ type FileHandler interface {
         Create(string) (io.WriteCloser, error)
 }
 
-type File struct {
-        Reader io.Reader
-        Writer io.Writer
-}
+type File struct{}
 
 func (File) Open(n string) (io.ReadCloser, error)    <span class="cov0" title="0">{ return os.Open(n) }</span>
 func (File) Create(n string) (io.WriteCloser, error) <span class="cov0" title="0">{ return os.Create(n) }</span>
 
-func NewFile() File <span class="cov0" title="0">{
+func NewFile() File <span class="cov8" title="1">{
         return File{}
 }</span>
 </pre>
@@ -133,14 +130,14 @@ type PNG ImageFormat
 
 func (PNG) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return png.Decode(r) }</span>
 func (PNG) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return png.Encode(w, i) }</span>
-func (p *PNG) GetExt() string                       <span class="cov0" title="0">{ return p.Ext }</span>
+func (p *PNG) GetExt() string                       <span class="cov8" title="1">{ return p.Ext }</span>
 
 // JPEG is type for jpeg format.
 type JPEG ImageFormat
 
 func (JPEG) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return jpeg.Decode(r) }</span>
 func (JPEG) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return jpeg.Encode(w, i, nil) }</span>
-func (j *JPEG) GetExt() string                       <span class="cov0" title="0">{ return j.Ext }</span>
+func (j *JPEG) GetExt() string                       <span class="cov8" title="1">{ return j.Ext }</span>
 
 // GIF is type for gif format.
 type GIF ImageFormat
@@ -149,37 +146,37 @@ func (GIF) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0"
 func (GIF) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{
         return gif.Encode(w, i, &amp;gif.Options{NumColors: 256})
 }</span>
-func (g *GIF) GetExt() string <span class="cov0" title="0">{ return g.Ext }</span>
+func (g *GIF) GetExt() string <span class="cov8" title="1">{ return g.Ext }</span>
 
 // BMP is type for bmp format.
 type BMP ImageFormat
 
 func (BMP) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return bmp.Decode(r) }</span>
 func (BMP) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return bmp.Encode(w, i) }</span>
-func (b *BMP) GetExt() string                       <span class="cov0" title="0">{ return b.Ext }</span>
+func (b *BMP) GetExt() string                       <span class="cov8" title="1">{ return b.Ext }</span>
 
 // TIFF is type for tiff format.
 type TIFF ImageFormat
 
 func (TIFF) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return tiff.Decode(r) }</span>
 func (TIFF) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return tiff.Encode(w, i, nil) }</span>
-func (t *TIFF) GetExt() string                       <span class="cov0" title="0">{ return t.Ext }</span>
+func (t *TIFF) GetExt() string                       <span class="cov8" title="1">{ return t.Ext }</span>
 
-func NewImageFormat(ext string) ImageFormater <span class="cov0" title="0">{
+func NewImageFormat(ext string) ImageFormater <span class="cov8" title="1">{
         switch ext </span>{
-        case "png":<span class="cov0" title="0">
+        case "png":<span class="cov8" title="1">
                 return &amp;PNG{Ext: "png"}</span>
-        case "jpg", "jpeg":<span class="cov0" title="0">
+        case "jpg", "jpeg":<span class="cov8" title="1">
                 return &amp;JPEG{Ext: "jpeg"}</span>
-        case "gif":<span class="cov0" title="0">
+        case "gif":<span class="cov8" title="1">
                 return &amp;GIF{Ext: "gif"}</span>
-        case "bmp":<span class="cov0" title="0">
+        case "bmp":<span class="cov8" title="1">
                 return &amp;BMP{Ext: "bmp"}</span>
-        case "tiff", "tif":<span class="cov0" title="0">
+        case "tiff", "tif":<span class="cov8" title="1">
                 return &amp;TIFF{Ext: "tiff"}</span>
         }
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		

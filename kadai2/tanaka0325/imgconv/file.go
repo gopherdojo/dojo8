@@ -10,10 +10,7 @@ type FileHandler interface {
 	Create(string) (io.WriteCloser, error)
 }
 
-type File struct {
-	Reader io.Reader
-	Writer io.Writer
-}
+type File struct{}
 
 func (File) Open(n string) (io.ReadCloser, error)    { return os.Open(n) }
 func (File) Create(n string) (io.WriteCloser, error) { return os.Create(n) }
