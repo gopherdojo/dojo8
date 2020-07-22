@@ -1,42 +1,52 @@
 // Imgconv package is to convert images file format.
 package imgconv
 
+import "io"
+
 // ConvertParam is parameter to convert image format.
 type ConvertParam struct {
-	Path        string
-	File        OpenCreator
-	BeforeImage Decoder
-	AfterImage  Encoder
-	FromExt     string
-	ToExt       string
+	Path         string
+	FileHandler  FileHandler
+	BeforeFormat ImageFormater
+	AfterFormat  ImageFormater
 }
 
 // Do is func to convert image format.
-func Do(param ConvertParam) (err error) {
-	r, err := param.File.Open(param.Path)
+func Do(param ConvertParam) (rerr error) {
+	r, err := param.FileHandler.Open(param.Path)
 	if err != nil {
-		return
+		return err
 	}
 	defer r.Close()
 
-	img, err := param.BeforeImage.Decode(r)
-	if err != nil {
-		return
-	}
-
-	e := len(param.Path) - len(param.FromExt)
-	w, err := param.File.Create(param.Path[:e] + param.ToExt)
+	e := len(param.Path) - len(param.BeforeFormat.GetExt())
+	w, err := param.FileHandler.Create(param.Path[:e] + param.AfterFormat.GetExt())
 	if err != nil {
 		return err
 	}
-
 	defer func() {
-		err = w.Close()
+		err := w.Close()
+		if err != nil {
+			rerr = err
+		}
 	}()
 
-	if err := param.AfterImage.Encode(w, img); err != nil {
+	if err := convert(r, param.BeforeFormat, w, param.AfterFormat); err != nil {
 		return err
 	}
 
-	return
+	return nil
+}
+
+func convert(r io.Reader, d Decoder, w io.Writer, e Encoder) error {
+	img, err := d.Decode(r)
+	if err != nil {
+		return err
+	}
+
+	if err := e.Encode(w, img); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -67,12 +67,10 @@ func main() {
 
 	for _, path := range paths {
 		param := imgconv.ConvertParam{
-			Path:        path,
-			File:        imgconv.NewFile(),
-			BeforeImage: imgconv.NewImage(from),
-			AfterImage:  imgconv.NewImage(to),
-			FromExt:     from,
-			ToExt:       to,
+			Path:         path,
+			FileHandler:  imgconv.NewFile(),
+			BeforeFormat: imgconv.NewImageFormat(from),
+			AfterFormat:  imgconv.NewImageFormat(to),
 		}
 
 		if !dryRun {
@@ -80,7 +78,7 @@ func main() {
 				onExit(err)
 			}
 		} else {
-			e := len(param.Path) - len(param.FromExt)
+			e := len(param.Path) - len(from)
 			fmt.Printf("%s => %s%s\n", path, path[:e], to)
 		}
 	}
