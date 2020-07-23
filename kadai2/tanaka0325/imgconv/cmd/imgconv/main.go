@@ -115,13 +115,7 @@ func uniq([]string) []string {
 }
 
 func isDir(path string) (bool, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	fi, err := f.Stat()
+	fi, err := os.Stat(path)
 	if err != nil {
 		return false, err
 	}
