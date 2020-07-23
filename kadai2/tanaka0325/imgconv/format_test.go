@@ -12,12 +12,12 @@ func TestImgconvNewImageFormat(t *testing.T) {
 		expected string
 	}{
 		{args: "png", expected: "png"},
-		{args: "jpg", expected: "jpeg"},
+		{args: "jpg", expected: "jpg"},
 		{args: "jpeg", expected: "jpeg"},
 		{args: "gif", expected: "gif"},
 		{args: "bmp", expected: "bmp"},
 		{args: "tiff", expected: "tiff"},
-		{args: "tif", expected: "tiff"},
+		{args: "tif", expected: "tif"},
 	}
 
 	for _, tt := range tests {
