@@ -15,6 +15,10 @@ func convert(dir, from, to string) error {
 
 	err := filepath.Walk(dir,
 		func(path string, info os.FileInfo, err error) (rerr error) {
+			if err != nil {
+				return err
+			}
+
 			fromImage, err := imgconv.NewImage("." + from)
 			if err != nil {
 				return err
@@ -26,7 +30,7 @@ func convert(dir, from, to string) error {
 			}
 
 			// ignore unrelated file
-			if !fromImage.IsMatchExt(filepath.Ext(path)) {
+			if !fromImage.Has(filepath.Ext(path)) {
 				return nil
 			}
 
@@ -37,14 +41,14 @@ func convert(dir, from, to string) error {
 			defer file.Close()
 
 			out, err := os.Create(switchExt(path, "."+to))
+			if err != nil {
+				return err
+			}
 			defer func() {
 				if err := out.Close(); err != nil {
 					rerr = err
 				}
 			}()
-			if err != nil {
-				return err
-			}
 
 			converter := imgconv.NewConverter(toImage.GetEncoder())
 			return converter.Execute(file, out)

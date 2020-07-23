@@ -6,13 +6,13 @@ import (
 	"io"
 )
 
-type JpegImage struct{}
+type JPEG struct{}
 
-func (*JpegImage) GetEncoder() Encoder {
-	return &JpegEncoder{}
+func (*JPEG) GetEncoder() Encoder {
+	return &JPEGEncoder{}
 }
 
-func (*JpegImage) IsMatchExt(ext string) bool {
+func (*JPEG) Has(ext string) bool {
 	var jpegExt = map[string]bool{
 		".jpg":  true,
 		".jpeg": true,
@@ -23,9 +23,9 @@ func (*JpegImage) IsMatchExt(ext string) bool {
 	return jpegExt[ext]
 }
 
-type JpegEncoder struct{}
+type JPEGEncoder struct{}
 
-func (*JpegEncoder) execute(w io.Writer, Image image.Image) error {
+func (*JPEGEncoder) execute(w io.Writer, Image image.Image) error {
 	err := jpeg.Encode(w, Image, &jpeg.Options{Quality: jpeg.DefaultQuality})
 	return err
 }

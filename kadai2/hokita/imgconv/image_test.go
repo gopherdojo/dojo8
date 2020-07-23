@@ -13,11 +13,11 @@ func TestNewImage(t *testing.T) {
 	}{
 		"jpg": {
 			ext:  ".jpg",
-			want: &JpegImage{},
+			want: &JPEG{},
 		},
 		"png": {
 			ext:  ".png",
-			want: &PngImage{},
+			want: &PNG{},
 		},
 		"txt": {
 			ext:        ".txt",

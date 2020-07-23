@@ -7,26 +7,23 @@ import (
 	"testing"
 )
 
-func TestJpegImage_GetEncoder(t *testing.T) {
+func TestPNG_GetEncoder(t *testing.T) {
 	test := struct {
 		want Encoder
 	}{
-		want: &JpegEncoder{},
+		want: &PNGEncoder{},
 	}
 
-	jpegImage := JpegImage{}
-	got := jpegImage.GetEncoder()
+	var pngImage PNG
+	got := pngImage.GetEncoder()
 	if !reflect.DeepEqual(got, test.want) {
-		t.Errorf(
-			`want="%v" got="%v"`,
-			test.want, got,
-		)
+		t.Errorf(`want="%v" got="%v"`, test.want, got)
 	}
 }
 
-func TestJpegEncoder_execute(t *testing.T) {
-	inFile := "../testdata/test3/gopher.png"
-	outFile := "../testdata/test3/gopher.jpg"
+func TestPngEncoder_execute(t *testing.T) {
+	inFile := "../testdata/test4/gopher.jpg"
+	outFile := "../testdata/test4/gopher.png"
 
 	file, err := os.Open(inFile)
 	if err != nil {
@@ -34,21 +31,21 @@ func TestJpegEncoder_execute(t *testing.T) {
 	}
 
 	out, err := os.Create(outFile)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer func() {
 		if err := out.Close(); err != nil {
 			t.Fatal(err)
 		}
 	}()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	img, _, err := image.Decode(file)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	encoder := &JpegEncoder{}
+	var encoder PNGEncoder
 	err = encoder.execute(out, img)
 	if err != nil {
 		t.Errorf("failed to call execute(): %v", err)

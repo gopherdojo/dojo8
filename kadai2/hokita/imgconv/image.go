@@ -6,18 +6,18 @@ import (
 
 type Image interface {
 	GetEncoder() Encoder
-	IsMatchExt(ext string) bool
+	Has(ext string) bool
 }
 
 func NewImage(ext string) (Image, error) {
-	jpegImage := &JpegImage{}
-	pngImage := &PngImage{}
+	var jpeg JPEG
+	var png PNG
 
 	switch {
-	case jpegImage.IsMatchExt(ext):
-		return jpegImage, nil
-	case pngImage.IsMatchExt(ext):
-		return pngImage, nil
+	case jpeg.Has(ext):
+		return &jpeg, nil
+	case png.Has(ext):
+		return &png, nil
 	}
 
 	return nil, errors.New("selected extension is not supported")
