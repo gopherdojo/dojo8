@@ -9,12 +9,18 @@ import (
 	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
 
-var args []string
-
 var (
+	args []string
+
 	from   string
 	to     string
 	dryRun bool
+)
+
+const (
+	fromUsageText   = "before extension"
+	toUsageText     = "after extension"
+	dryRunUsageText = "with dry-run"
 )
 
 var allowedExts = map[string]bool{
@@ -28,12 +34,12 @@ var allowedExts = map[string]bool{
 }
 
 func init() {
-	flag.StringVar(&from, "from", "jpg", "before ext")
-	flag.StringVar(&from, "f", "jpg", "before ext (short)")
-	flag.StringVar(&to, "to", "png", "after ext")
-	flag.StringVar(&to, "t", "png", "after ext (short)")
-	flag.BoolVar(&dryRun, "dry-run", false, "use dry-run")
-	flag.BoolVar(&dryRun, "n", false, "use dry-run (short)")
+	flag.StringVar(&from, "from", "jpg", fromUsageText)
+	flag.StringVar(&from, "f", "jpg", fromUsageText+" (short)")
+	flag.StringVar(&to, "to", "png", toUsageText)
+	flag.StringVar(&to, "t", "png", toUsageText+" (short)")
+	flag.BoolVar(&dryRun, "dry-run", false, dryRunUsageText)
+	flag.BoolVar(&dryRun, "n", false, dryRunUsageText+" (short)")
 	flag.Parse()
 
 	args = flag.Args()
