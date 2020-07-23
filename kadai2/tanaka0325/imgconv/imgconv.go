@@ -7,8 +7,8 @@ import "io"
 type ConvertParam struct {
 	Path         string
 	FileHandler  FileHandler
-	BeforeFormat ImageFormater
-	AfterFormat  ImageFormater
+	BeforeFormat ImageConverter
+	AfterFormat  ImageConverter
 }
 
 // Do is func to convert image format.

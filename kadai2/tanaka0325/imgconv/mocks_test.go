@@ -34,28 +34,28 @@ type decodeFunc func(io.Reader) (image.Image, error)
 type encodeFunc func(io.Writer, image.Image) error
 type getExtFunc func() string
 
-type mockImageFormat struct {
+type mockImage struct {
 	mockDecode decodeFunc
 	mockEncode encodeFunc
 	mockGetExt getExtFunc
 }
 
-func (m mockImageFormat) Decode(r io.Reader) (image.Image, error) { return m.mockDecode(r) }
-func (m mockImageFormat) Encode(w io.Writer, i image.Image) error {
+func (m mockImage) Decode(r io.Reader) (image.Image, error) { return m.mockDecode(r) }
+func (m mockImage) Encode(w io.Writer, i image.Image) error {
 	return m.mockEncode(w, i)
 }
-func (m mockImageFormat) GetExt() string { return m.mockGetExt() }
+func (m mockImage) GetExt() string { return m.mockGetExt() }
 
-func newMockImageFormat(df decodeFunc, ef encodeFunc, gf getExtFunc) mockImageFormat {
-	return mockImageFormat{
+func newMockImage(df decodeFunc, ef encodeFunc, gf getExtFunc) mockImage {
+	return mockImage{
 		mockDecode: df,
 		mockEncode: ef,
 		mockGetExt: gf,
 	}
 }
 
-type mockImage struct{}
+type mockStdImage struct{}
 
-func (mockImage) ColorModel() (c color.Model) { return }
-func (mockImage) Bounds() (r image.Rectangle) { return }
-func (mockImage) At(int, int) (c color.Color) { return }
+func (mockStdImage) ColorModel() (c color.Model) { return }
+func (mockStdImage) Bounds() (r image.Rectangle) { return }
+func (mockStdImage) At(int, int) (c color.Color) { return }

@@ -39,13 +39,13 @@ func TestImgconvDo(t *testing.T) {
 					func(s string) (io.WriteCloser, error) { return nil, fmt.Errorf("err") },
 				)
 
-				mbi := newMockImageFormat(
-					func(r io.Reader) (image.Image, error) { return mockImage{}, nil },
+				mbi := newMockImage(
+					func(r io.Reader) (image.Image, error) { return mockStdImage{}, nil },
 					nil,
 					func() string { return "jpeg" },
 				)
 
-				mai := newMockImageFormat(
+				mai := newMockImage(
 					nil,
 					func(w io.Writer, i image.Image) error { return nil },
 					func() string { return "png" },
@@ -68,13 +68,13 @@ func TestImgconvDo(t *testing.T) {
 					func(s string) (io.WriteCloser, error) { return mockCloser{}, nil },
 				)
 
-				mbi := newMockImageFormat(
-					func(r io.Reader) (image.Image, error) { return mockImage{}, nil },
+				mbi := newMockImage(
+					func(r io.Reader) (image.Image, error) { return mockStdImage{}, nil },
 					nil,
 					func() string { return "jpeg" },
 				)
 
-				mai := newMockImageFormat(
+				mai := newMockImage(
 					nil,
 					func(w io.Writer, i image.Image) error { return fmt.Errorf("err") },
 					func() string { return "png" },
@@ -97,12 +97,12 @@ func TestImgconvDo(t *testing.T) {
 					func(s string) (io.WriteCloser, error) { return mockCloser{}, nil },
 				)
 
-				mbi := newMockImageFormat(
-					func(r io.Reader) (image.Image, error) { return mockImage{}, nil },
+				mbi := newMockImage(
+					func(r io.Reader) (image.Image, error) { return mockStdImage{}, nil },
 					nil,
 					func() string { return "jpeg" },
 				)
-				mai := newMockImageFormat(
+				mai := newMockImage(
 					nil,
 					func(w io.Writer, i image.Image) error { return nil },
 					func() string { return "png" },
@@ -145,7 +145,7 @@ func TestImgconv_convert(t *testing.T) {
 		{
 			name: "error: Decode failed",
 			args: func() args {
-				mi := newMockImageFormat(
+				mi := newMockImage(
 					func(r io.Reader) (image.Image, error) { return nil, fmt.Errorf("err") },
 					nil,
 					nil,
@@ -162,13 +162,13 @@ func TestImgconv_convert(t *testing.T) {
 		{
 			name: "error: Encode failed",
 			args: func() args {
-				me := newMockImageFormat(
+				me := newMockImage(
 					func(r io.Reader) (image.Image, error) { return mockImage{}, nil },
 					nil,
 					nil,
 				)
 
-				md := newMockImageFormat(
+				md := newMockImage(
 					nil,
 					func(w io.Writer, i image.Image) error { return fmt.Errorf("err") },
 					nil,
@@ -185,13 +185,13 @@ func TestImgconv_convert(t *testing.T) {
 		{
 			name: "ok",
 			args: func() args {
-				me := newMockImageFormat(
+				me := newMockImage(
 					func(r io.Reader) (image.Image, error) { return mockImage{}, nil },
 					nil,
 					nil,
 				)
 
-				md := newMockImageFormat(
+				md := newMockImage(
 					nil,
 					func(w io.Writer, i image.Image) error { return nil },
 					nil,

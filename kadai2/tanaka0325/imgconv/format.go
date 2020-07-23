@@ -19,32 +19,32 @@ type Encoder interface {
 	Encode(io.Writer, image.Image) error
 }
 
-type ImageFormater interface {
+type ImageConverter interface {
 	Decoder
 	Encoder
 	GetExt() string
 }
 
-type ImageFormat struct {
+type Image struct {
 	Ext string
 }
 
 // ImagePng is type for png format.
-type PNG ImageFormat
+type PNG Image
 
 func (PNG) Decode(r io.Reader) (image.Image, error) { return png.Decode(r) }
 func (PNG) Encode(w io.Writer, i image.Image) error { return png.Encode(w, i) }
 func (p *PNG) GetExt() string                       { return p.Ext }
 
 // JPEG is type for jpeg format.
-type JPEG ImageFormat
+type JPEG Image
 
 func (JPEG) Decode(r io.Reader) (image.Image, error) { return jpeg.Decode(r) }
 func (JPEG) Encode(w io.Writer, i image.Image) error { return jpeg.Encode(w, i, nil) }
 func (j *JPEG) GetExt() string                       { return j.Ext }
 
 // GIF is type for gif format.
-type GIF ImageFormat
+type GIF Image
 
 func (GIF) Decode(r io.Reader) (image.Image, error) { return gif.Decode(r) }
 func (GIF) Encode(w io.Writer, i image.Image) error {
@@ -53,20 +53,20 @@ func (GIF) Encode(w io.Writer, i image.Image) error {
 func (g *GIF) GetExt() string { return g.Ext }
 
 // BMP is type for bmp format.
-type BMP ImageFormat
+type BMP Image
 
 func (BMP) Decode(r io.Reader) (image.Image, error) { return bmp.Decode(r) }
 func (BMP) Encode(w io.Writer, i image.Image) error { return bmp.Encode(w, i) }
 func (b *BMP) GetExt() string                       { return b.Ext }
 
 // TIFF is type for tiff format.
-type TIFF ImageFormat
+type TIFF Image
 
 func (TIFF) Decode(r io.Reader) (image.Image, error) { return tiff.Decode(r) }
 func (TIFF) Encode(w io.Writer, i image.Image) error { return tiff.Encode(w, i, nil) }
 func (t *TIFF) GetExt() string                       { return t.Ext }
 
-func NewImageFormat(ext string) ImageFormater {
+func NewImage(ext string) ImageConverter {
 	switch ext {
 	case "png":
 		return &PNG{Ext: ext}

@@ -75,8 +75,8 @@ func main() {
 		param := imgconv.ConvertParam{
 			Path:         path,
 			FileHandler:  imgconv.NewFile(),
-			BeforeFormat: imgconv.NewImageFormat(from),
-			AfterFormat:  imgconv.NewImageFormat(to),
+			BeforeFormat: imgconv.NewImage(from),
+			AfterFormat:  imgconv.NewImage(to),
 		}
 
 		if !dryRun {

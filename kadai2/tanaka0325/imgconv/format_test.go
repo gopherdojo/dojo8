@@ -6,7 +6,7 @@ import (
 	"github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv"
 )
 
-func TestImgconvNewImageFormat(t *testing.T) {
+func TestImgconvNewImage(t *testing.T) {
 	tests := []struct {
 		args     string
 		expected string
@@ -22,7 +22,7 @@ func TestImgconvNewImageFormat(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.args, func(t *testing.T) {
-			f := imgconv.NewImageFormat(tt.args)
+			f := imgconv.NewImage(tt.args)
 			got := f.GetExt()
 			if got != tt.expected {
 				t.Errorf("expected = %+v, but got = %+v", tt.expected, got)
@@ -31,7 +31,7 @@ func TestImgconvNewImageFormat(t *testing.T) {
 	}
 
 	t.Run("expected args", func(t *testing.T) {
-		got := imgconv.NewImageFormat("pdf")
+		got := imgconv.NewImage("pdf")
 		if got != nil {
 			t.Errorf("expected = nil, but got = %+v", got)
 		}
