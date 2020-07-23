@@ -58,7 +58,7 @@
 				
 				<option value="file1">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/format.go (54.5%)</option>
 				
-				<option value="file2">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/imgconv.go (95.2%)</option>
+				<option value="file2">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/imgconv.go (95.7%)</option>
 				
 				</select>
 			</div>
@@ -165,15 +165,15 @@ func (t *TIFF) GetExt() string                       <span class="cov8" title="1
 func NewImageFormat(ext string) ImageFormater <span class="cov8" title="1">{
         switch ext </span>{
         case "png":<span class="cov8" title="1">
-                return &amp;PNG{Ext: "png"}</span>
+                return &amp;PNG{Ext: ext}</span>
         case "jpg", "jpeg":<span class="cov8" title="1">
-                return &amp;JPEG{Ext: "jpeg"}</span>
+                return &amp;JPEG{Ext: ext}</span>
         case "gif":<span class="cov8" title="1">
-                return &amp;GIF{Ext: "gif"}</span>
+                return &amp;GIF{Ext: ext}</span>
         case "bmp":<span class="cov8" title="1">
-                return &amp;BMP{Ext: "bmp"}</span>
+                return &amp;BMP{Ext: ext}</span>
         case "tiff", "tif":<span class="cov8" title="1">
-                return &amp;TIFF{Ext: "tiff"}</span>
+                return &amp;TIFF{Ext: ext}</span>
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -201,8 +201,8 @@ func Do(param ConvertParam) (rerr error) <span class="cov8" title="1">{
         }</span>
         <span class="cov8" title="1">defer r.Close()
 
-        e := len(param.Path) - len(param.BeforeFormat.GetExt())
-        w, err := param.FileHandler.Create(param.Path[:e] + param.AfterFormat.GetExt())
+        n := buildAfterPath(param.Path, param.BeforeFormat.GetExt(), param.AfterFormat.GetExt())
+        w, err := param.FileHandler.Create(n)
         if err != nil </span><span class="cov8" title="1">{
                 return err
         }</span>
@@ -219,6 +219,11 @@ func Do(param ConvertParam) (rerr error) <span class="cov8" title="1">{
 
         <span class="cov8" title="1">return nil</span>
 }
+
+func buildAfterPath(path, beforeExt, afterExt string) string <span class="cov8" title="1">{
+        e := len(path) - len(beforeExt)
+        return path[:e] + afterExt
+}</span>
 
 func convert(r io.Reader, d Decoder, w io.Writer, e Encoder) error <span class="cov8" title="1">{
         img, err := d.Decode(r)

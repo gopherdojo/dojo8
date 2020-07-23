@@ -69,15 +69,15 @@ func (t *TIFF) GetExt() string                       { return t.Ext }
 func NewImageFormat(ext string) ImageFormater {
 	switch ext {
 	case "png":
-		return &PNG{Ext: "png"}
+		return &PNG{Ext: ext}
 	case "jpg", "jpeg":
-		return &JPEG{Ext: "jpeg"}
+		return &JPEG{Ext: ext}
 	case "gif":
-		return &GIF{Ext: "gif"}
+		return &GIF{Ext: ext}
 	case "bmp":
-		return &BMP{Ext: "bmp"}
+		return &BMP{Ext: ext}
 	case "tiff", "tif":
-		return &TIFF{Ext: "tiff"}
+		return &TIFF{Ext: ext}
 	}
 
 	return nil

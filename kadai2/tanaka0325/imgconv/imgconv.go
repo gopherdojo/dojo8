@@ -19,8 +19,8 @@ func Do(param ConvertParam) (rerr error) {
 	}
 	defer r.Close()
 
-	e := len(param.Path) - len(param.BeforeFormat.GetExt())
-	w, err := param.FileHandler.Create(param.Path[:e] + param.AfterFormat.GetExt())
+	n := buildAfterPath(param.Path, param.BeforeFormat.GetExt(), param.AfterFormat.GetExt())
+	w, err := param.FileHandler.Create(n)
 	if err != nil {
 		return err
 	}
@@ -36,6 +36,11 @@ func Do(param ConvertParam) (rerr error) {
 	}
 
 	return nil
+}
+
+func buildAfterPath(path, beforeExt, afterExt string) string {
+	e := len(path) - len(beforeExt)
+	return path[:e] + afterExt
 }
 
 func convert(r io.Reader, d Decoder, w io.Writer, e Encoder) error {

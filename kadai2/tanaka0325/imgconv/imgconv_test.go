@@ -123,7 +123,7 @@ func TestImgconvDo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := imgconv.Do(tt.args)
 			if (tt.isErr && err == nil) || (!tt.isErr && err != nil) {
-				t.Errorf("expect err = %+v, but got err = %+v", tt.isErr, err)
+				t.Errorf("expected err = %+v, but got err = %+v", tt.isErr, err)
 			}
 		})
 	}
@@ -211,7 +211,40 @@ func TestImgconv_convert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := imgconv.ConvertFunc(tt.args.Reader, tt.args.Decoder, tt.args.Writer, tt.args.Encoder)
 			if (tt.isErr && err == nil) || (!tt.isErr && err != nil) {
-				t.Errorf("expect err = %+v, but got err = %+v", tt.isErr, err)
+				t.Errorf("expected err = %+v, but got err = %+v", tt.isErr, err)
+			}
+		})
+	}
+}
+
+func TestImgconv_buildAfterPath(t *testing.T) {
+	type args struct {
+		path      string
+		beforeExt string
+		afterExt  string
+	}
+
+	tests := []struct {
+		name     string
+		args     args
+		expected string
+	}{
+		{
+			name: "ok",
+			args: args{
+				path:      "test.gif",
+				beforeExt: "gif",
+				afterExt:  "png",
+			},
+			expected: "test.png",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := imgconv.BuildAfterPathFunc(tt.args.path, tt.args.beforeExt, tt.args.afterExt)
+			if got != tt.expected {
+				t.Errorf("expected = %+v, but got = %+v", tt.expected, got)
 			}
 		})
 	}

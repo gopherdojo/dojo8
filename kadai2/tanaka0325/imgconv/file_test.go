@@ -12,6 +12,6 @@ func TestImgconvNewFile(t *testing.T) {
 
 	got, ok := f.(imgconv.File)
 	if !ok {
-		t.Errorf("expect type: File, but got %T", got)
+		t.Errorf("expected type: File, but got %T", got)
 	}
 }
