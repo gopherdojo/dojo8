@@ -59,8 +59,13 @@ func TestCLI(t *testing.T) {
 	command := NewCommand(outStream, errStream)
 
 	tests := []struct {
-		name, directory, fromFormat, toFormat, outStream, errStream string
-		exitCode                                                    int
+		name       string
+		directory  string
+		fromFormat string
+		toFormat   string
+		outStream  string
+		errStream  string
+		exitCode   int
 	}{
 		{name: "success", directory: testDir, fromFormat: "png", toFormat: "jpg", outStream: "", errStream: "", exitCode: 0},
 		{name: "invalid directory", directory: "dummyDir", fromFormat: "jpg", toFormat: "png", outStream: "", errStream: "failed to read directory: dummyDir, err: open dummyDir: no such file or directory", exitCode: 1},

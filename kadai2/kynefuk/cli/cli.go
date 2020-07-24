@@ -30,7 +30,8 @@ func (cli *Command) Run(args *Args) int {
 
 	imgConverter := converter.NewConverter(args.from, args.to)
 	for _, file := range files {
-		if err := imgConverter.ConvertFormat(file); err != nil {
+		dstPath := converter.ConvertExt(file, args.from, args.to)
+		if err := imgConverter.ConvertFormat(file, dstPath); err != nil {
 			fmt.Fprintf(cli.ErrStream, "failed to convert img, err: %s\n", err)
 			return ExitCodeError
 		}

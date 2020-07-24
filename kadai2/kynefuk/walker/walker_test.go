@@ -18,7 +18,7 @@ var fileExtList = []string{
 	"tiff",
 }
 
-func CreateTestDir() string {
+func CreatetmpDir() string {
 	dir, err := ioutil.TempDir("./", "example")
 	if err != nil {
 		log.Fatalf("failed to create test dir. error: %s", err)
@@ -26,7 +26,7 @@ func CreateTestDir() string {
 	return dir
 }
 
-func CreateTmpFile(dir string) []string {
+func CreateTmpFiles(dir string) []string {
 	var tmpFilePaths []string
 	for _, v := range fileExtList {
 		f, err := ioutil.TempFile(dir, "example.*."+v)
@@ -39,9 +39,9 @@ func CreateTmpFile(dir string) []string {
 }
 
 func TestWalker(t *testing.T) {
-	testDir := CreateTestDir()
-	tmpFilePaths := CreateTmpFile(testDir)
-	defer os.RemoveAll(testDir)
+	tmpDir := CreatetmpDir()
+	tmpFilePaths := CreateTmpFiles(tmpDir)
+	defer os.RemoveAll(tmpDir)
 
 	type TestCase struct {
 		name, directory, fromFmt string
@@ -59,7 +59,7 @@ func TestWalker(t *testing.T) {
 	for _, fileFmt := range fileExtList {
 		name := fmt.Sprintf("walker collects %s file", fileFmt)
 		tests := TestCase{
-			name: name, directory: testDir, fromFmt: fileFmt, files: tmpFilePaths, err: nil,
+			name: name, directory: tmpDir, fromFmt: fileFmt, files: tmpFilePaths, err: nil,
 		}
 		testCases = append(testCases, tests)
 	}

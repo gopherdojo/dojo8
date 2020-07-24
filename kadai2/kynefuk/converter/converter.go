@@ -19,7 +19,7 @@ type Converter struct {
 }
 
 // ConvertFormat converts file format
-func (converter *Converter) ConvertFormat(filepath string) error {
+func (converter *Converter) ConvertFormat(filepath, dst string) error {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return fmt.Errorf("failed to open file. file: %s", filepath)
@@ -31,11 +31,17 @@ func (converter *Converter) ConvertFormat(filepath string) error {
 		return fmt.Errorf("failed to decode file. file: %s", filepath)
 	}
 
-	out, err := os.Create(converter.ConvertExt(filepath))
+	out, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("failed to create output file. file: %s", converter.ConvertExt(filepath))
+		return fmt.Errorf("failed to create output file. file: %s", dst)
 	}
 	defer out.Close()
+
+	// out, err := os.Create(converter.ConvertExt(filepath))
+	// if err != nil {
+	// 	return fmt.Errorf("failed to create output file. file: %s", converter.ConvertExt(filepath))
+	// }
+	// defer out.Close()
 
 	switch converter.To {
 	case "jpg", "jpeg":
@@ -56,8 +62,8 @@ func (converter *Converter) ConvertFormat(filepath string) error {
 }
 
 // ConvertExt converts file format extention
-func (converter *Converter) ConvertExt(filepath string) string {
-	return strings.Replace(filepath, converter.From, converter.To, 1)
+func ConvertExt(filepath, from, to string) string {
+	return strings.Replace(filepath, from, to, 1)
 }
 
 // NewConverter is a Constructor of Converter
