@@ -6,17 +6,17 @@ import (
 
 // Args represents CLI's arguments object
 type Args struct {
-	directory, from, to string
+	DirecTory, From, To string
 }
 
 // Validate is a validation method
 func (args *Args) Validate() error {
 	fileExtMap := createFileExtMap()
-	if _, ok := fileExtMap[args.from]; !ok {
-		return fmt.Errorf("argument of \"-f, --from\" is not valid file format. invalid format: %s", args.from)
+	if _, ok := fileExtMap[args.From]; !ok {
+		return fmt.Errorf("argument of \"-f, --From\" is not valid file format. invalid format: %s", args.From)
 	}
-	if _, ok := fileExtMap[args.to]; !ok {
-		return fmt.Errorf("argument of \"-t, --to\" is not valid file format. invalid format: %s", args.to)
+	if _, ok := fileExtMap[args.To]; !ok {
+		return fmt.Errorf("argument of \"-t, --To\" is not valid file format. invalid format: %s", args.To)
 	}
 
 	return nil
@@ -38,7 +38,7 @@ func createFileExtMap() map[string]string {
 	return fileExtMap
 }
 
-// NewArgs is a constructor of Args
-func NewArgs(directory, from, to string) *Args {
-	return &Args{directory: directory, from: from, to: to}
+// NewArgs is a construcTor of Args
+func NewArgs(DirecTory, From, To string) *Args {
+	return &Args{DirecTory: DirecTory, From: From, To: To}
 }

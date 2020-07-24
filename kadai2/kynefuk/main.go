@@ -28,5 +28,5 @@ func main() {
 		os.Exit(cli.ExitCodeError)
 	}
 
-	os.Exit(command.Run(args))
+	os.Exit(command.Run(args.DirecTory, args.From, args.To))
 }

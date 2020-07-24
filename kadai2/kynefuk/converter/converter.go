@@ -37,12 +37,6 @@ func (converter *Converter) ConvertFormat(filepath, dst string) error {
 	}
 	defer out.Close()
 
-	// out, err := os.Create(converter.ConvertExt(filepath))
-	// if err != nil {
-	// 	return fmt.Errorf("failed to create output file. file: %s", converter.ConvertExt(filepath))
-	// }
-	// defer out.Close()
-
 	switch converter.To {
 	case "jpg", "jpeg":
 		err = jpeg.Encode(out, img, &jpeg.Options{Quality: 100})

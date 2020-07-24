@@ -2,13 +2,11 @@ package cli
 
 import (
 	"bytes"
-	"fmt"
-	"image"
-	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/gopherdojo/dojo8/kadai2/kynefuk/helper"
 )
 
 var fileExtList = []string{
@@ -24,41 +22,13 @@ func ConvertExt(filepath, to string) string {
 	return strings.Replace(filepath, ".png", to, 1)
 }
 
-func createTestData() string {
-	// setup
-	testDir, err := ioutil.TempDir("", "testdata")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	testFilePath := "../testdata/gopher.png"
-
-	file, err := os.Open(testFilePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, ext := range fileExtList {
-		out, _ := os.Create(ConvertExt(testFilePath, ext))
-		out.Close()
-
-	}
-	return testDir
-}
-
 func TestCLI(t *testing.T) {
-	testDir := createTestData()
-	defer os.Remove(testDir)
+	testDir := helper.CreateTmpDir()
+	defer os.RemoveAll(testDir)
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	command := NewCommand(outStream, errStream)
 
-	tests := []struct {
+	cases := []struct {
 		name       string
 		directory  string
 		fromFormat string
@@ -70,22 +40,23 @@ func TestCLI(t *testing.T) {
 		{name: "success", directory: testDir, fromFormat: "png", toFormat: "jpg", outStream: "", errStream: "", exitCode: 0},
 		{name: "invalid directory", directory: "dummyDir", fromFormat: "jpg", toFormat: "png", outStream: "", errStream: "failed to read directory: dummyDir, err: open dummyDir: no such file or directory", exitCode: 1},
 		{name: "invalid to format", directory: testDir, fromFormat: "jpg", toFormat: "hoge", outStream: "", errStream: "failed to convert img, err: unknown format type", exitCode: 1},
-		{name: "invalid from format", directory: testDir, fromFormat: "hoge", toFormat: "png", outStream: "", errStream: "", exitCode: 0},
+		{name: "invalid from format", directory: testDir, fromFormat: "hoge", toFormat: "png", outStream: "", errStream: "", exitCode: 1},
 	}
 
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			args := NewArgs(tt.directory, tt.fromFormat, tt.toFormat)
-			status := command.Run(args)
-			if status != tt.exitCode {
-				t.Errorf("want %d, got %d", tt.exitCode, status)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			tmpFile := helper.CreateTmpFile(testDir, c.fromFormat)
+			defer os.Remove(tmpFile.Name())
+			status := command.Run(c.directory, c.fromFormat, c.toFormat)
+
+			if status != c.exitCode {
+				helper.ErrorHelper(t, c.exitCode, status)
 			}
-			if !strings.Contains(outStream.String(), tt.outStream) {
-				t.Errorf("want %s, got %s", tt.outStream, outStream.String())
+			if !strings.Contains(outStream.String(), c.outStream) {
+				helper.ErrorHelper(t, c.outStream, outStream.String())
 			}
-			if !strings.Contains(errStream.String(), tt.errStream) {
-				t.Errorf("want %s, got %s", tt.errStream, errStream.String())
+			if !strings.Contains(errStream.String(), c.errStream) {
+				helper.ErrorHelper(t, c.errStream, errStream.String())
 			}
 		})
 	}

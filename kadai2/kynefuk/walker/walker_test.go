@@ -2,45 +2,16 @@ package walker
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/gopherdojo/dojo8/kadai2/kynefuk/helper"
 )
 
-var fileExtList = []string{
-	"jpg",
-	"jpeg",
-	"png",
-	"gif",
-	"bmp",
-	"tiff",
-}
-
-func CreatetmpDir() string {
-	dir, err := ioutil.TempDir("./", "example")
-	if err != nil {
-		log.Fatalf("failed to create test dir. error: %s", err)
-	}
-	return dir
-}
-
-func CreateTmpFiles(dir string) []string {
-	var tmpFilePaths []string
-	for _, v := range fileExtList {
-		f, err := ioutil.TempFile(dir, "example.*."+v)
-		if err != nil {
-			log.Fatalf("failed to create tmp file. error: %s", err)
-		}
-		tmpFilePaths = append(tmpFilePaths, f.Name())
-	}
-	return tmpFilePaths
-}
-
 func TestWalker(t *testing.T) {
-	tmpDir := CreatetmpDir()
-	tmpFilePaths := CreateTmpFiles(tmpDir)
+	tmpDir := helper.CreateTmpDir()
+	tmpFilePaths := helper.CreateTmpFiles(tmpDir)
 	defer os.RemoveAll(tmpDir)
 
 	type TestCase struct {
@@ -56,7 +27,7 @@ func TestWalker(t *testing.T) {
 	}
 
 	var testCases TestCases
-	for _, fileFmt := range fileExtList {
+	for _, fileFmt := range helper.FileExtList {
 		name := fmt.Sprintf("walker collects %s file", fileFmt)
 		tests := TestCase{
 			name: name, directory: tmpDir, fromFmt: fileFmt, files: tmpFilePaths, err: nil,
@@ -64,16 +35,15 @@ func TestWalker(t *testing.T) {
 		testCases = append(testCases, tests)
 	}
 
-	for _, tt := range testCases {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			dirWalker := NewWalker(tt.fromFmt)
-			files, err := dirWalker.Dirwalk(tt.directory)
-			if err != tt.err {
+	for _, c := range testCases {
+		t.Run(c.name, func(t *testing.T) {
+			dirWalker := NewWalker(c.fromFmt)
+			files, err := dirWalker.Dirwalk(c.directory)
+			if err != c.err {
 				t.Errorf("test failed. error: %s", err)
 			}
-			if reflect.DeepEqual(tt.files, files) {
-				t.Errorf("want %s, but got %s", tt.files, files)
+			if reflect.DeepEqual(c.files, files) {
+				helper.ErrorHelper(t, c.files, files)
 			}
 		})
 	}
