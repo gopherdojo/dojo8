@@ -1,8 +1,10 @@
 package download
 
 import (
+	"context"
 	//"bytes"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"net/http"
 	"net/url"
@@ -71,55 +73,47 @@ func Download(url string, outDir string, nChunk int) error {
 		return err
 	}
 
-	for i, v := range d.byteMap {
-		d.wg.Add(1)
-		go d.downloadChunk(v, i)
+	bc := context.Background()
+	eg, ctx := errgroup.WithContext(bc)
+	//ctx, cancel := context.WithTimeout(ctx, 1* time.Second)
+	//defer cancel()
+
+	for i := range d.byteMap {
+		i := i
+		eg.Go(func() error {
+			return d.downloadChunk(i, ctx)
+		})
 	}
-	select {
-	case err := <-d.err:
+	if err := eg.Wait(); err != nil {
 		return err
-	default:
-		d.wg.Wait()
-		if err = d.writeFile(); err != nil {
-			d.deleteChunks()
-			return err
-		}
-		if err = d.getOutputFileSize(); err != nil {
-			return err
-		}
-		elapsed := time.Since(start)
-
-		d.displaySummary(elapsed)
-		return nil
 	}
+
+	if err = d.writeFile(); err != nil {
+		d.deleteChunks()
+		return err
+	}
+	if err = d.getOutputFileSize(); err != nil {
+		return err
+	}
+	elapsed := time.Since(start)
+
+	d.displaySummary(elapsed)
+	return nil
 }
 
-func (d *downloader) displaySummary(elapsed time.Duration) {
-	format := "%-30s %-30s\n"
-	fmt.Println(strings.Repeat("=", 100))
-	fmt.Printf("Download Completed!\n")
-	fmt.Printf("[Summary]\n")
-	fmt.Println(strings.Repeat("-", 100))
-	fmt.Printf(format, "URL", d.url)
-	fmt.Printf(format, "Output File", d.outPath)
-	fmt.Printf(format, "Split Count", strconv.Itoa(d.nChunk))
-	fmt.Printf(format, "Remote Size (Bytes)", strconv.Itoa(d.totalSize))
-	fmt.Printf(format, "Local Size (Bytes)", strconv.Itoa(d.outputSize))
-	fmt.Printf(format, "Elapsed", elapsed)
-	fmt.Println(strings.Repeat("=", 100))
-}
-
-func (d *downloader) downloadChunk(loc byteLocation, idx int) {
+func (d *downloader) downloadChunk(idx int, ctx context.Context) error {
+	//ctx, cancel := context.WithCancel(ctx)
+	loc := d.byteMap[idx]
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", d.url, nil)
 	if err != nil {
-		d.err <- err
+		return err
 	}
 	headerRange := "bytes=" + strconv.Itoa(loc.start) + "-" + strconv.Itoa(loc.end)
 	req.Header.Add("Range", headerRange)
 	resp, err := client.Do(req)
 	if err != nil {
-		d.err <- err
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -128,10 +122,19 @@ func (d *downloader) downloadChunk(loc byteLocation, idx int) {
 
 	_, err = io.Copy(f, resp.Body)
 	if err != nil {
-		d.err <- err
+		return err
 	}
-	//fmt.Printf("[%d]...Downloaded. Start: %d, End: %d, Size:%d\n", idx, loc.start, loc.end, loc.size)
-	d.wg.Done()
+	fmt.Printf("[%d]...Downloaded. Start: %d, End: %d, Size:%d\n", idx, loc.start, loc.end, loc.size)
+
+	select {
+	case <-ctx.Done():
+		fmt.Println("Cancelled >> ", idx)
+		return nil
+	case <-time.After(1 * time.Second):
+		return fmt.Errorf("Timeout >> ", idx)
+	default:
+		return nil
+	}
 }
 
 func (d *downloader) writeFile() error {
@@ -207,4 +210,19 @@ func (d *downloader) getOutputFileSize() error {
 	}
 	d.outputSize = int(fi.Size())
 	return nil
+}
+
+func (d *downloader) displaySummary(elapsed time.Duration) {
+	format := "%-30s %-30s\n"
+	fmt.Println(strings.Repeat("=", 100))
+	fmt.Printf("Download Completed!\n")
+	fmt.Printf("[Summary]\n")
+	fmt.Println(strings.Repeat("-", 100))
+	fmt.Printf(format, "URL", d.url)
+	fmt.Printf(format, "Output File", d.outPath)
+	fmt.Printf(format, "Split Count", strconv.Itoa(d.nChunk))
+	fmt.Printf(format, "Remote Size (Bytes)", strconv.Itoa(d.totalSize))
+	fmt.Printf(format, "Local Size (Bytes)", strconv.Itoa(d.outputSize))
+	fmt.Printf(format, "Elapsed", elapsed)
+	fmt.Println(strings.Repeat("=", 100))
 }
