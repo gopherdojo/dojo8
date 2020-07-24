@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/file.go (33.3%)</option>
+				
+				<option value="file1">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/format.go (54.5%)</option>
+				
+				<option value="file2">github.com/gopherdojo/dojo8/kadai2/tanaka0325/imgconv/imgconv.go (95.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package imgconv
+
+import (
+        "io"
+        "os"
+)
+
+type FileHandler interface {
+        Open(string) (io.ReadCloser, error)
+        Create(string) (io.WriteCloser, error)
+}
+
+type File struct{}
+
+func (File) Open(n string) (io.ReadCloser, error)    <span class="cov0" title="0">{ return os.Open(n) }</span>
+func (File) Create(n string) (io.WriteCloser, error) <span class="cov0" title="0">{ return os.Create(n) }</span>
+
+func NewFile() File <span class="cov8" title="1">{
+        return File{}
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package imgconv
+
+import (
+        "image"
+        "image/gif"
+        "image/jpeg"
+        "image/png"
+        "io"
+
+        "golang.org/x/image/bmp"
+        "golang.org/x/image/tiff"
+)
+
+type Decoder interface {
+        Decode(io.Reader) (image.Image, error)
+}
+
+type Encoder interface {
+        Encode(io.Writer, image.Image) error
+}
+
+type ImageFormater interface {
+        Decoder
+        Encoder
+        GetExt() string
+}
+
+type ImageFormat struct {
+        Ext string
+}
+
+// ImagePng is type for png format.
+type PNG ImageFormat
+
+func (PNG) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return png.Decode(r) }</span>
+func (PNG) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return png.Encode(w, i) }</span>
+func (p *PNG) GetExt() string                       <span class="cov8" title="1">{ return p.Ext }</span>
+
+// JPEG is type for jpeg format.
+type JPEG ImageFormat
+
+func (JPEG) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return jpeg.Decode(r) }</span>
+func (JPEG) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return jpeg.Encode(w, i, nil) }</span>
+func (j *JPEG) GetExt() string                       <span class="cov8" title="1">{ return j.Ext }</span>
+
+// GIF is type for gif format.
+type GIF ImageFormat
+
+func (GIF) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return gif.Decode(r) }</span>
+func (GIF) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{
+        return gif.Encode(w, i, &amp;gif.Options{NumColors: 256})
+}</span>
+func (g *GIF) GetExt() string <span class="cov8" title="1">{ return g.Ext }</span>
+
+// BMP is type for bmp format.
+type BMP ImageFormat
+
+func (BMP) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return bmp.Decode(r) }</span>
+func (BMP) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return bmp.Encode(w, i) }</span>
+func (b *BMP) GetExt() string                       <span class="cov8" title="1">{ return b.Ext }</span>
+
+// TIFF is type for tiff format.
+type TIFF ImageFormat
+
+func (TIFF) Decode(r io.Reader) (image.Image, error) <span class="cov0" title="0">{ return tiff.Decode(r) }</span>
+func (TIFF) Encode(w io.Writer, i image.Image) error <span class="cov0" title="0">{ return tiff.Encode(w, i, nil) }</span>
+func (t *TIFF) GetExt() string                       <span class="cov8" title="1">{ return t.Ext }</span>
+
+func NewImageFormat(ext string) ImageFormater <span class="cov8" title="1">{
+        switch ext </span>{
+        case "png":<span class="cov8" title="1">
+                return &amp;PNG{Ext: ext}</span>
+        case "jpg", "jpeg":<span class="cov8" title="1">
+                return &amp;JPEG{Ext: ext}</span>
+        case "gif":<span class="cov8" title="1">
+                return &amp;GIF{Ext: ext}</span>
+        case "bmp":<span class="cov8" title="1">
+                return &amp;BMP{Ext: ext}</span>
+        case "tiff", "tif":<span class="cov8" title="1">
+                return &amp;TIFF{Ext: ext}</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">// Imgconv package is to convert images file format.
+package imgconv
+
+import "io"
+
+// ConvertParam is parameter to convert image format.
+type ConvertParam struct {
+        Path         string
+        FileHandler  FileHandler
+        BeforeFormat ImageFormater
+        AfterFormat  ImageFormater
+}
+
+// Do is func to convert image format.
+func Do(param ConvertParam) (rerr error) <span class="cov8" title="1">{
+        r, err := param.FileHandler.Open(param.Path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer r.Close()
+
+        n := buildAfterPath(param.Path, param.BeforeFormat.GetExt(), param.AfterFormat.GetExt())
+        w, err := param.FileHandler.Create(n)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer func() </span><span class="cov8" title="1">{
+                err := w.Close()
+                if err != nil </span><span class="cov0" title="0">{
+                        rerr = err
+                }</span>
+        }()
+
+        <span class="cov8" title="1">if err := convert(r, param.BeforeFormat, w, param.AfterFormat); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func buildAfterPath(path, beforeExt, afterExt string) string <span class="cov8" title="1">{
+        e := len(path) - len(beforeExt)
+        return path[:e] + afterExt
+}</span>
+
+func convert(r io.Reader, d Decoder, w io.Writer, e Encoder) error <span class="cov8" title="1">{
+        img, err := d.Decode(r)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if err := e.Encode(w, img); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
