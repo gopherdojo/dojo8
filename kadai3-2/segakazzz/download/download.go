@@ -27,6 +27,7 @@ type downloader struct {
 	byteMap    []byteLocation
 	wg         sync.WaitGroup
 	err        chan error
+	timeout    time.Duration
 }
 
 type byteLocation struct {
@@ -35,7 +36,7 @@ type byteLocation struct {
 	size  int
 }
 
-func newDownloader(urlStr string, outDir string, nChunk int) (*downloader, error) {
+func newDownloader(urlStr string, outDir string, nChunk int, secTimeout int) (*downloader, error) {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -56,6 +57,7 @@ func newDownloader(urlStr string, outDir string, nChunk int) (*downloader, error
 		tmpFiles: tmpFiles,
 		nChunk:   nChunk,
 		byteMap:  make([]byteLocation, nChunk),
+		timeout:  time.Duration(secTimeout) * time.Second,
 	}
 	err = downloader.getFileSize()
 	if err != nil {
@@ -65,26 +67,31 @@ func newDownloader(urlStr string, outDir string, nChunk int) (*downloader, error
 	return &downloader, nil
 }
 
-func Download(url string, outDir string, nChunk int) error {
+func Download(url string, outDir string, nChunk int, secTimeout int) error {
 	start := time.Now()
 
-	d, err := newDownloader(url, outDir, nChunk)
+	d, err := newDownloader(url, outDir, nChunk, secTimeout)
 	if err != nil {
 		return err
 	}
 
-	bc := context.Background()
-	eg, ctx := errgroup.WithContext(bc)
-	//ctx, cancel := context.WithTimeout(ctx, 1* time.Second)
-	//defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	g, gctx := errgroup.WithContext(ctx)
 
 	for i := range d.byteMap {
 		i := i
-		eg.Go(func() error {
-			return d.downloadChunk(i, ctx)
+		g.Go(func() error {
+			return d.downloadChunk(i, gctx)
 		})
 	}
-	if err := eg.Wait(); err != nil {
+
+	time.AfterFunc(d.timeout, func() {
+		fmt.Printf("Cancelled due to timeout %s\n", d.timeout)
+		cancel()
+		d.deleteChunks()
+	})
+
+	if err := g.Wait(); err != nil {
 		return err
 	}
 
@@ -101,8 +108,7 @@ func Download(url string, outDir string, nChunk int) error {
 	return nil
 }
 
-func (d *downloader) downloadChunk(idx int, ctx context.Context) error {
-	//ctx, cancel := context.WithCancel(ctx)
+func (d *downloader) downloadChunk(idx int, gctx context.Context) error {
 	loc := d.byteMap[idx]
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", d.url, nil)
@@ -124,17 +130,16 @@ func (d *downloader) downloadChunk(idx int, ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[%d]...Downloaded. Start: %d, End: %d, Size:%d\n", idx, loc.start, loc.end, loc.size)
 
 	select {
-	case <-ctx.Done():
+	case <-gctx.Done():
 		fmt.Println("Cancelled >> ", idx)
-		return nil
-	case <-time.After(1 * time.Second):
-		return fmt.Errorf("Timeout >> ", idx)
+		return gctx.Err()
 	default:
+		fmt.Printf("[%d]...Downloaded. Start: %d, End: %d, Size:%d\n", idx, loc.start, loc.end, loc.size)
 		return nil
 	}
+
 }
 
 func (d *downloader) writeFile() error {
