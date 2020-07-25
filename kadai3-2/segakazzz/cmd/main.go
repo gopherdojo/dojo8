@@ -16,17 +16,19 @@ func main() {
 		secTimeout int
 	)
 	flag.StringVar(&url,
-		"url",
+		"u",
 		"https://d2qguwbxlx1sbt.cloudfront.net/TextInMotion-VideoSample-1080p.mp4",
 		"Target URL to download")
 
 	flag.StringVar(&outDir,
-		"dir",
+		"d",
 		"./testdata/",
 		"Directory to save file")
 
 	flag.IntVar(&nChunk, "n", 10, "Number of parallel process")
-	flag.IntVar(&secTimeout, "sec", 10, "Seconds to timeout")
+	flag.IntVar(&secTimeout, "s", 10, "Seconds to timeout")
+
+	flag.Parse()
 
 	err := download.Download(url, outDir, nChunk, secTimeout)
 
