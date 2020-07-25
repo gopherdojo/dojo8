@@ -16,11 +16,12 @@ go build -o kadai3-2
 ./kadai3-2 -u https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_1920_18MG.mp4 -d ../testdata/ -s 10 -n 10
 ~~~
 
-###　オプション
+### オプション
 - -d 出力先のディレクトリを指定
 - -n ダウンロード分割数を指定
 - -s タイムアウト秒を指定
 - -u ダウンロードするファイルのURLを指定
+
 ~~~
 $ ./kadai3-2 -h
 Usage of ./kadai3-2:
