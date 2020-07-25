@@ -13,9 +13,10 @@ github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:47.10,50.5 2 0
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:66.55,71.12 3 1
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:84.2,84.21 1 1
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:71.12,73.16 2 1
+github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:77.3,77.33 1 1
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:81.3,81.16 1 1
-github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:73.16,76.34 2 1
-github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:76.34,78.5 1 0
+github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:73.16,76.4 1 1
+github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:77.33,79.4 1 0
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:88.53,90.16 2 1
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:93.2,97.21 4 1
 github.com/gopherdojo/dojo8/kadai3-1/hokita/typing/main.go:100.2,100.40 1 1

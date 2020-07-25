@@ -14,7 +14,7 @@ const (
 	ExitCodeError = 1
 
 	timelimit = 10
-	filePath  = "./words.txt"
+	filePath  = "words.txt"
 )
 
 func main() {
@@ -73,9 +73,9 @@ func input(r io.Reader) (<-chan string, <-chan error) {
 		for s.Scan() {
 			// チャネルに読み込んだ文字列を送る
 			result <- s.Text()
-			if err := s.Err(); err != nil {
-				errc <- err
-			}
+		}
+		if err := s.Err(); err != nil {
+			errc <- err
 		}
 		// チャネルを閉じる
 		close(result)

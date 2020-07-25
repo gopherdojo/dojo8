@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -43,12 +44,12 @@ func TestImportWords(t *testing.T) {
 	}{
 		{
 			name:     "import testfile1",
-			filepath: "testdata/words1.txt",
+			filepath: filepath.Join("testdata", "words1.txt"),
 			want:     []string{"gopher", "golang", "goroutines"},
 		},
 		{
 			name:     "import testfile2",
-			filepath: "testdata/words2.txt",
+			filepath: filepath.Join("testdata", "words2.txt"),
 			want:     []string{"java", "php", "erlang", "elixir"},
 		},
 	}
