@@ -15,6 +15,8 @@ func main() {
 	flag.StringVar(&json, "json", "../testdata/words.json", "Path to source json file to import")
 	flag.IntVar(&sec, "sec", 10, "Seconds to timeout")
 
+	flag.Parse()
+
 	err := tpgame.Run(json, time.Duration(sec) * time.Second)
 	if err != nil {
 		os.Exit(1)
