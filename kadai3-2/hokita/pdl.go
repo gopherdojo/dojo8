@@ -65,7 +65,6 @@ func (p *PDL) download() error {
 	for i := 0; i < int(p.proc); i++ {
 		i := i
 		eg.Go(func() error {
-			// set download byte range
 			return p.partialDownload(egctx, i)
 		})
 	}
@@ -140,7 +139,6 @@ func (p *PDL) setSize() error {
 func (p *PDL) setFilename() {
 	token := strings.Split(p.url, "/")
 
-	// get of filename from url
 	var original string
 	for i := 1; original == ""; i++ {
 		original = token[len(token)-i]
@@ -166,7 +164,7 @@ func (p *PDL) partialDownload(ctx context.Context, index int) error {
 
 	r := p.makeRange(uint(index), p.proc)
 
-	// set head
+	// set header
 	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", r.start, r.end))
 
 	// do
