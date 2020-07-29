@@ -16,6 +16,14 @@ type Omikuji struct {
 	Result   string    `json:"result"`
 }
 
+type stdLibProvider struct {
+	jsonMarshal func(v interface{}) ([]byte, error)
+}
+
+var StdMethods = stdLibProvider{
+	jsonMarshal: json.Marshal,
+}
+
 func newOmikuji() *Omikuji {
 	return &Omikuji{}
 }
@@ -26,11 +34,9 @@ func (o *Omikuji) omikujiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	js, err := json.Marshal(o)
+	js, err := o.genJson()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
@@ -78,6 +84,14 @@ func (o *Omikuji) tryOmikuji() error {
 	}
 	o.Result, err = o.intToStr(o.Dice)
 	return err
+}
+
+func (o *Omikuji) genJson() ([]byte, error) {
+	js, err := StdMethods.jsonMarshal(o)
+	if err != nil {
+		return nil, err
+	}
+	return js, nil
 }
 
 func (o *Omikuji) isNewYearHoliday () bool {
