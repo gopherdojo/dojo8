@@ -1,7 +1,11 @@
 package omikuji_test
 
 import (
+	"fmt"
 	"github.com/gopherdojo/dojo8/kadai4/segakazzz/omikuji"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
@@ -186,7 +190,6 @@ func TestOmikuji_isNewYearHoliday(t *testing.T) {
 			},
 			want: true,
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -202,34 +205,6 @@ func TestOmikuji_isNewYearHoliday(t *testing.T) {
 	}
 }
 
-//func TestOmikuji_omikujiHandler(t *testing.T) {
-//	type fields struct {
-//		DateTime time.Time
-//		Dice     int
-//		Result   string
-//	}
-//	type args struct {
-//		w http.ResponseWriter
-//		r *http.Request
-//	}
-//	tests := []struct {
-//		name   string
-//		fields fields
-//		args   args
-//	}{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			o := &omikuji.Omikuji{
-//				DateTime: tt.fields.DateTime,
-//				Dice:     tt.fields.Dice,
-//				Result:   tt.fields.Result,
-//			}
-//		})
-//	}
-//}
-
 func TestOmikuji_throwOneToSix(t *testing.T) {
 	type fields struct {
 		DateTime time.Time
@@ -242,9 +217,9 @@ func TestOmikuji_throwOneToSix(t *testing.T) {
 		want   int
 	}{
 		{
-			name: "Success",
+			name:   "Success",
 			fields: fields{},
-			want: 6,
+			want:   6,
 		},
 	}
 	for _, tt := range tests {
@@ -262,35 +237,6 @@ func TestOmikuji_throwOneToSix(t *testing.T) {
 	}
 }
 
-func TestOmikuji_tryOmikuji(t *testing.T) {
-	type fields struct {
-		isNewYear bool
-		Dice     int
-		Result   string
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			omikuji.IsNewYearHoliday = func (o *omikuji.Omikuji) bool {
-				return true
-			}
-			omikuji.ThrowOneToSix = func (o *omikuji.Omikuji) int {
-				return 6
-			}
-			o := &omikuji.Omikuji{}
-			if err := omikuji.TryOmikuji(o); (err != nil) != tt.wantErr {
-				t.Errorf("tryOmikuji() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func TestRun(t *testing.T) {
 	type args struct {
 		port int
@@ -299,11 +245,22 @@ func TestRun(t *testing.T) {
 		name    string
 		args    args
 		wantErr bool
+		mockMethod omikuji.StdLibProvider
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Error",
+			args: args{port: 8000},
+			wantErr: true,
+			mockMethod: omikuji.StdLibProvider{
+				HttpListenAndServe: func(addr string, handler http.Handler) error {
+					return fmt.Errorf("Mock http.listen and serve error")
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			omikuji.StdMethods = tt.mockMethod
 			if err := omikuji.Run(tt.args.port); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -316,7 +273,10 @@ func Test_newOmikuji(t *testing.T) {
 		name string
 		want *omikuji.Omikuji
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Success",
+			want: &omikuji.Omikuji{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -326,3 +286,144 @@ func Test_newOmikuji(t *testing.T) {
 		})
 	}
 }
+
+func TestOmikuji_tryOmikuji(t *testing.T) {
+	type fields struct {
+		DateTime time.Time
+		Dice     int
+		Result   string
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		wantErr     bool
+		mockMethods omikuji.StdLibProvider
+	}{
+		{
+			name:        "New Year Holiday",
+			fields:      fields{},
+			wantErr:     false,
+			mockMethods: omikuji.MockHoliday,
+		},
+		{
+			name:        "Not New Year Holiday",
+			fields:      fields{},
+			wantErr:     false,
+			mockMethods: omikuji.MockNotHoliday,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &omikuji.Omikuji{
+				DateTime: tt.fields.DateTime,
+				Dice:     tt.fields.Dice,
+				Result:   tt.fields.Result,
+			}
+			omikuji.StdMethods = tt.mockMethods
+			if err := omikuji.TryOmikuji(o); (err != nil) != tt.wantErr {
+				t.Errorf("tryOmikuji() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestOmikuji_omikujiHandler(t *testing.T) {
+	type fields struct {
+		DateTime time.Time
+		Dice     int
+		Result   string
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		mockMethods omikuji.StdLibProvider
+		wantCode    int
+		wantErr     bool
+		wantResp    string
+	}{
+		{
+			name: "Not New Year",
+			fields: fields{
+				DateTime: time.Date(2020, time.July, 21, 5, 9, 23, 3424, time.UTC),
+				Dice:     6,
+				Result:   "大吉",
+			},
+			mockMethods: omikuji.StdLibProvider{
+				JsonMarshal:        omikuji.StdStdMethods.JsonMarshal,
+				RandIntn:           omikuji.StdStdMethods.RandIntn,
+				TimeNow:            func() time.Time{
+					return  time.Date(2020, time.July, 21, 5, 9, 23, 3424, time.UTC)
+				},
+			},
+			wantResp:  "{\"time\":\"2020-07-21T05:09:23.000003424Z\",\"dice\":3,\"result\":\"吉\"}",
+			wantCode:    http.StatusOK,
+			wantErr:     false,
+		},
+		{
+			name: "Try Omikuji Error",
+			fields: fields{
+				DateTime: time.Date(2020, time.July, 21, 5, 9, 23, 3424, time.UTC),
+				Dice:     6,
+				Result:   "大吉",
+			},
+			mockMethods: omikuji.StdLibProvider{
+				JsonMarshal: func(v interface{}) ([]byte, error) {
+					return nil, fmt.Errorf("json.marshal dummy error...")
+				},
+				RandIntn: omikuji.StdStdMethods.RandIntn,
+				TimeNow:  omikuji.StdStdMethods.TimeNow,
+			},
+			wantCode: http.StatusInternalServerError,
+			wantErr:  true,
+			wantResp: "",
+		},
+		{
+			name: "Try Omikuji Error",
+			fields: fields{
+				DateTime: time.Date(2020, time.July, 21, 5, 9, 23, 3424, time.UTC),
+				Dice:     6,
+				Result:   "大吉",
+			},
+			mockMethods: omikuji.StdLibProvider{
+				JsonMarshal: omikuji.StdMethods.JsonMarshal,
+				RandIntn: func(n int) int{
+					return 10
+				},
+				TimeNow:  omikuji.StdStdMethods.TimeNow,
+			},
+			wantCode: http.StatusInternalServerError,
+			wantErr:  true,
+			wantResp: "",
+		},
+
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &omikuji.Omikuji{
+				DateTime: tt.fields.DateTime,
+				Dice:     tt.fields.Dice,
+				Result:   tt.fields.Result,
+			}
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+			omikuji.StdMethods = tt.mockMethods
+			omikuji.OmikujiHandler(o, w, r)
+			rw := w.Result()
+			defer rw.Body.Close()
+			if rw.StatusCode != tt.wantCode {
+				t.Fatal("unexpected status code")
+			}
+			b, err := ioutil.ReadAll(rw.Body)
+			if err != nil {
+				t.Fatal("unexpected error")
+			}
+			if rw.StatusCode == http.StatusOK{
+				expected := tt.wantResp
+				if s := string(b); s != expected {
+					t.Fatalf("unexpected response: %s", s)
+				}
+			}
+		})
+	}
+}
+

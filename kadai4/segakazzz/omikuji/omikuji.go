@@ -16,14 +16,18 @@ type Omikuji struct {
 	Result   string    `json:"result"`
 }
 
-type stdLibProvider struct {
-	jsonMarshal func(v interface{}) ([]byte, error)
-	randIntn func(int) int
+type StdLibProvider struct {
+	JsonMarshal func(v interface{}) ([]byte, error)
+	RandIntn func(int) int
+	TimeNow func() time.Time
+	HttpListenAndServe func (addr string, handler http.Handler) error
 }
 
-var StdMethods = stdLibProvider{
-	jsonMarshal: json.Marshal,
-	randIntn: rand.Intn,
+var StdMethods = StdLibProvider{
+	JsonMarshal: json.Marshal,
+	RandIntn: rand.Intn,
+	TimeNow: time.Now,
+	HttpListenAndServe: http.ListenAndServe,
 }
 
 func newOmikuji() *Omikuji {
@@ -48,7 +52,7 @@ func Run(port int) error {
 	o := newOmikuji()
 	http.HandleFunc("/", o.omikujiHandler)
 	fmt.Println("Server is starting with port " +strconv.Itoa(port), "👍")
-	err := http.ListenAndServe(":" + strconv.Itoa(port), nil)
+	err := StdMethods.HttpListenAndServe(":" + strconv.Itoa(port), nil)
 	if err != nil {
 		return errors.Wrapf(err, "Error in Run()\n")
 	}
@@ -57,7 +61,7 @@ func Run(port int) error {
 
 func (o *Omikuji)throwOneToSix() int {
 	rand.Seed(o.DateTime.UnixNano())
-	i := StdMethods.randIntn(6)
+	i := StdMethods.RandIntn(6)
 	return i + 1
 }
 
@@ -78,7 +82,7 @@ func (o *Omikuji)intToStr(n int) (string, error) {
 
 func (o *Omikuji) tryOmikuji() error {
 	var err error
-	o.DateTime = time.Now()
+	o.DateTime = StdMethods.TimeNow()
 	if !o.isNewYearHoliday(){
 		o.Dice = o.throwOneToSix()
 	} else {
@@ -89,7 +93,7 @@ func (o *Omikuji) tryOmikuji() error {
 }
 
 func (o *Omikuji) genJson() ([]byte, error) {
-	js, err := StdMethods.jsonMarshal(o)
+	js, err := StdMethods.JsonMarshal(o)
 	if err != nil {
 		return nil, err
 	}
