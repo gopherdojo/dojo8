@@ -23,4 +23,17 @@ Server is running with port 8080👍
 
 ### 処理説明補足
 - 以前作成した[Try]おみくじプログラムを作ろうを応用しました。
+- テストパッケージをomikuji_testとして作成しました。（課題２は同じパッケージ内で行った）
+- テストでは勉強のため、一部のテストをStandard Library提供の関数をMockして実行しました。
 
+~~~
+$ cd omikuji
+$ go test  --cover --coverprofile=coverprofile.out 
+Server is starting with port 8000 👍
+PASS
+coverage: 97.6% of statements
+ok      github.com/gopherdojo/dojo8/kadai4/segakazzz/omikuji    0.016s
+~~~
+
+## 感想
+- APIの作成自体はすんなり終わりましたが、テストコードの作成にかなり苦戦しました
