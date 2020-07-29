@@ -3,8 +3,10 @@ package omikuji
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -15,7 +17,7 @@ type Omikuji struct {
 }
 
 func newOmikuji() *Omikuji {
-	return &Omikuji{DateTime:time.Now()}
+	return &Omikuji{}
 }
 
 func (o *Omikuji) omikujiHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,14 +36,19 @@ func (o *Omikuji) omikujiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-func Run() {
+func Run(port int) error {
 	o := newOmikuji()
 	http.HandleFunc("/", o.omikujiHandler)
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Server is starting with port " +strconv.Itoa(port), "👍")
+	err := http.ListenAndServe(":" + strconv.Itoa(port), nil)
+	if err != nil {
+		return errors.Wrapf(err, "Error in Run()\n")
+	}
+	return nil
 }
 
 func (o *Omikuji)throwOneToSix() int {
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(o.DateTime.UnixNano())
 	i := rand.Intn(6)
 	return i + 1
 }
@@ -63,6 +70,7 @@ func (o *Omikuji)intToStr(n int) (string, error) {
 
 func (o *Omikuji) tryOmikuji() error {
 	var err error
+	o.DateTime = time.Now()
 	if !o.isNewYearHoliday(){
 		o.Dice = o.throwOneToSix()
 	} else {

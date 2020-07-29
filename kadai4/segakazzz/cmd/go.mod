@@ -4,4 +4,7 @@ go 1.14
 
 replace github.com/gopherdojo/dojo8/kadai4/segakazzz/omikuji => ../omikuji
 
-require github.com/gopherdojo/dojo8/kadai4/segakazzz/omikuji v0.0.0-00010101000000-000000000000 // indirect
+require (
+	github.com/gopherdojo/dojo8/kadai4/segakazzz/omikuji v0.0.0-00010101000000-000000000000 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+)
