@@ -26,7 +26,7 @@ func TestOmikuji_genJson(t *testing.T) {
 				Dice:     1,
 				Result:   "凶",
 			},
-			want: "{\"time\":\"2009-11-10T23:00:00Z\",\"dice\":1,\"result\":\"凶\"}",
+			want:    "{\"time\":\"2009-11-10T23:00:00Z\",\"dice\":1,\"result\":\"凶\"}",
 			wantErr: false,
 		},
 		{
@@ -36,7 +36,7 @@ func TestOmikuji_genJson(t *testing.T) {
 				Dice:     6,
 				Result:   "大吉",
 			},
-			want: "",
+			want:    "",
 			wantErr: true,
 		},
 		{
@@ -46,10 +46,9 @@ func TestOmikuji_genJson(t *testing.T) {
 				Dice:     6,
 				Result:   "大吉",
 			},
-			want: "{\"time\":\"2020-07-21T05:09:23.000003424Z\",\"dice\":6,\"result\":\"大吉\"}",
+			want:    "{\"time\":\"2020-07-21T05:09:23.000003424Z\",\"dice\":6,\"result\":\"大吉\"}",
 			wantErr: false,
 		},
-
 	}
 	for _, tt := range tests {
 
@@ -93,7 +92,41 @@ func TestOmikuji_intToStr(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Success Dice 1",
+			fields:  fields{},
+			args:    args{n: 1},
+			want:    "凶",
+			wantErr: false,
+		},
+		{
+			name:    "Success Dice 2",
+			fields:  fields{},
+			args:    args{n: 2},
+			want:    "吉",
+			wantErr: false,
+		},
+		{
+			name:    "Success Dice 4",
+			fields:  fields{},
+			args:    args{n: 4},
+			want:    "中吉",
+			wantErr: false,
+		},
+		{
+			name:    "Success Dice 6",
+			fields:  fields{},
+			args:    args{n: 6},
+			want:    "大吉",
+			wantErr: false,
+		},
+		{
+			name:    "Error Dice",
+			fields:  fields{},
+			args:    args{n: 1000},
+			want:    "",
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -125,7 +158,35 @@ func TestOmikuji_isNewYearHoliday(t *testing.T) {
 		fields fields
 		want   bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Not New Year 1",
+			fields: fields{
+				DateTime: time.Date(2020, time.July, 21, 5, 9, 23, 3424, time.UTC),
+			},
+			want: false,
+		},
+		{
+			name: "Not New Year 2",
+			fields: fields{
+				DateTime: time.Date(2020, time.December, 31, 23, 59, 59, 123445, time.UTC),
+			},
+			want: false,
+		},
+		{
+			name: "New Year 1",
+			fields: fields{
+				DateTime: time.Date(2020, time.January, 3, 6, 34, 55, 343424, time.UTC),
+			},
+			want: true,
+		},
+		{
+			name: "New Year 2",
+			fields: fields{
+				DateTime: time.Date(2020, time.January, 1, 0, 00, 00, 343424, time.UTC),
+			},
+			want: true,
+		},
+
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -180,7 +241,11 @@ func TestOmikuji_throwOneToSix(t *testing.T) {
 		fields fields
 		want   int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Success",
+			fields: fields{},
+			want: 6,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -189,6 +254,7 @@ func TestOmikuji_throwOneToSix(t *testing.T) {
 				Dice:     tt.fields.Dice,
 				Result:   tt.fields.Result,
 			}
+			omikuji.StdMethods = omikuji.MockStdMethods
 			if got := omikuji.ThrowOneToSix(o); got != tt.want {
 				t.Errorf("throwOneToSix() = %v, want %v", got, tt.want)
 			}
@@ -198,7 +264,7 @@ func TestOmikuji_throwOneToSix(t *testing.T) {
 
 func TestOmikuji_tryOmikuji(t *testing.T) {
 	type fields struct {
-		DateTime time.Time
+		isNewYear bool
 		Dice     int
 		Result   string
 	}
@@ -211,11 +277,13 @@ func TestOmikuji_tryOmikuji(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := &omikuji.Omikuji{
-				DateTime: tt.fields.DateTime,
-				Dice:     tt.fields.Dice,
-				Result:   tt.fields.Result,
+			omikuji.IsNewYearHoliday = func (o *omikuji.Omikuji) bool {
+				return true
 			}
+			omikuji.ThrowOneToSix = func (o *omikuji.Omikuji) int {
+				return 6
+			}
+			o := &omikuji.Omikuji{}
 			if err := omikuji.TryOmikuji(o); (err != nil) != tt.wantErr {
 				t.Errorf("tryOmikuji() error = %v, wantErr %v", err, tt.wantErr)
 			}

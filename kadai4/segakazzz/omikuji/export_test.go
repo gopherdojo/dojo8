@@ -17,3 +17,9 @@ var ErrStdMethods = stdLibProvider{
 		return nil, fmt.Errorf("json.marshal dummy error...")
 	},
 }
+
+var MockStdMethods = stdLibProvider{
+	randIntn:func(i int) int {
+		return 5
+	},
+}

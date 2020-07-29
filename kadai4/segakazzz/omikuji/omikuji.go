@@ -18,10 +18,12 @@ type Omikuji struct {
 
 type stdLibProvider struct {
 	jsonMarshal func(v interface{}) ([]byte, error)
+	randIntn func(int) int
 }
 
 var StdMethods = stdLibProvider{
 	jsonMarshal: json.Marshal,
+	randIntn: rand.Intn,
 }
 
 func newOmikuji() *Omikuji {
@@ -55,7 +57,7 @@ func Run(port int) error {
 
 func (o *Omikuji)throwOneToSix() int {
 	rand.Seed(o.DateTime.UnixNano())
-	i := rand.Intn(6)
+	i := StdMethods.randIntn(6)
 	return i + 1
 }
 
