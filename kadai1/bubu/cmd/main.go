@@ -36,10 +36,10 @@ func main() {
 	err := cnv.Convert(*fromType, *toType)
 
 	if err != nil {
-		str := fmt.Sprintf("err: %s", err)
-		fmt.Println(str)
+		fmt.Println("err:", err)
 		os.Exit(1)
 	} else {
+		fmt.Println("Ok!")
 		os.Exit(0)
 	}
 }
