@@ -1,0 +1,17 @@
+mode: set
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:16.32,18.2 1 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:20.34,23.25 2 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:26.2,26.39 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:23.25,25.3 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:29.50,36.34 2 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:41.2,41.14 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:36.34,37.34 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/omikuji/omikuji.go:37.34,39.4 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:21.12,23.2 1 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:25.16,28.61 2 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:32.2,32.10 1 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:28.61,31.3 2 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:35.27,37.2 1 0
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:39.68,44.2 3 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:46.73,47.68 1 1
+github.com/gopherdojo/dojo8/kadai4/hokita/omikuji/server/server.go:47.68,50.3 2 0
